@@ -1,0 +1,18 @@
+# Versioning and metadata
+.git
+.gitignore
+.dockerignore
+
+# Build dependencies
+dist
+node_modules
+npm_debug.log
+
+# Environment (contains sensitive data)
+*.env
+
+# Files not required for production
+.idea
+Dockerfile
+*.md
+tslint.json
