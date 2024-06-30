@@ -2,6 +2,10 @@ name: Test - Build CI
 
 on: pull_request
 
+env:
+  NODE_ENV: test
+  PORT: 8000
+
 jobs:
   lint:
     runs-on: ubuntu-latest
