@@ -1,10 +1,4 @@
-import {
-  ArgumentsHost,
-  Catch,
-  HttpException,
-  HttpStatus,
-  Logger,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 
 @Catch()
@@ -17,13 +11,12 @@ export class HttpExceptionFilter implements HttpExceptionFilter {
 
     let httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
     let errorMessage: string | object = 'Internal server error';
-    let errorName: string = 'UnknownError';
+    let errorCode: string = 'UNKNOWN_ERROR';
 
     if (exception instanceof HttpException) {
       httpStatus = exception.getStatus();
-      errorMessage =
-        exception.getResponse()?.['message'] || exception.getResponse();
-      errorName = exception.getResponse()?.['error'] || exception.name;
+      errorMessage = exception.getResponse()?.['message'] || exception.getResponse();
+      errorCode = exception.getResponse()?.['code'];
     }
 
     if (exception instanceof Error && !errorMessage) {
@@ -32,10 +25,8 @@ export class HttpExceptionFilter implements HttpExceptionFilter {
 
     const response = {
       statusCode: httpStatus,
-      error: errorName,
-      message: errorMessage,
-      method: ctx.getRequest().method,
-      path: httpAdapter.getRequestUrl(ctx.getRequest()),
+      code: errorCode,
+      error: errorMessage,
     };
 
     Logger.error(

@@ -14,7 +14,14 @@ datasource db {
 }
 
 model User {
-  id    String  @id @default(uuid())
-  email String  @unique
-  name  String?
+  id        String  @id @default(uuid())
+  email     String  @unique
+  firstname String
+  lastname  String
+  password  String
+  imageUrl  String?
+
+  createdAt DateTime @default(now())
+
+  @@map("users")
 }
