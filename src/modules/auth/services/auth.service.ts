@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { UserAlreadyExistsException } from '@app/modules/auth/exceptions/user-already-exists.exception';
@@ -16,7 +15,6 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
   ) {}
 
   async validateLocalUser(email: string, password: string) {

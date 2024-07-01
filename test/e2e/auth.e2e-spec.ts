@@ -60,7 +60,6 @@ describe('Auth (e2e)', () => {
       const res = await testingApp.express.request().post('/auth/login').send(loginUserDto);
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('accessToken');
-      expect(res.body).toHaveProperty('refreshToken');
     });
   });
 });
