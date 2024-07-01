@@ -24,7 +24,7 @@ export class JwtAuthGuard extends AuthGuard(AuthStrategy.JWT) {
 
   handleRequest<T extends UserDto, _>(err: Error, user: T, _info: _) {
     if (err || !user) {
-      throw err || new UnauthorizedException("You don't have access to this");
+      throw err || new UnauthorizedException("You don't have permission to access this resource!");
     }
     return user;
   }

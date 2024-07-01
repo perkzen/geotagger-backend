@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { CrudRepository } from '@app/common/repository/crud-repository.interface';
 import { PrismaService } from '@app/modules/db/prisma.service';
-import { CreateUserDto } from '@app/modules/users/dtos/create-user.dto';
 import { UpdateUserDto } from '@app/modules/users/dtos/update-user.dto';
 
 @Injectable()
-export class UsersRepository implements CrudRepository<CreateUserDto, CreateUserDto, User> {
+export class UsersRepository implements CrudRepository<Prisma.UserCreateInput, Prisma.UserUpdateInput, User> {
   constructor(private readonly db: PrismaService) {}
 
-  async create(data: CreateUserDto): Promise<User> {
+  async create(data: Prisma.UserCreateInput): Promise<User> {
     return this.db.user.create({
       data,
     });

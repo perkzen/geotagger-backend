@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker';
 import { LoginDto } from '@app/modules/auth/dtos/login.dto';
-import { CreateUserDto } from '@app/modules/users/dtos/create-user.dto';
+import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
 
 describe('Auth (e2e)', () => {
   let testingApp: TestAppBootstrap;
 
-  const createUserDto: CreateUserDto = {
+  const createUserDto: CreateLocalUserDto = {
     email: faker.internet.email(),
     password: 'Password123!',
     firstname: faker.person.firstName(),

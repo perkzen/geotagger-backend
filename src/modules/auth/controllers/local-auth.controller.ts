@@ -14,7 +14,7 @@ import { User } from '@app/modules/auth/decorators/user.decorator';
 import { AuthUserDto } from '@app/modules/auth/dtos/auth-user.dto';
 import { LocalAuthGuard } from '@app/modules/auth/guards/local-auth.guard';
 import { AuthService } from '@app/modules/auth/services/auth.service';
-import { CreateUserDto } from '@app/modules/users/dtos/create-user.dto';
+import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { UserDto } from '@app/modules/users/dtos/user.dto';
 
 @ApiTags('Authentication')
@@ -61,7 +61,7 @@ export class LocalAuthController {
   @ApiBadRequestResponse({ description: 'Invalid data' })
   @Public()
   @Post('register')
-  async register(@Body() data: CreateUserDto) {
+  async register(@Body() data: CreateLocalUserDto) {
     const user = await this.authService.register(data);
     return serializeToDto(UserDto, user);
   }

@@ -9,11 +9,6 @@ export class AuthUserDto {
   accessToken: string;
 
   @ApiProperty()
-  @IsString()
-  @Expose()
-  refreshToken: string;
-
-  @ApiProperty()
   @IsEmail()
   @Expose()
   email: string;

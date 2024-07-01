@@ -7,6 +7,8 @@ import { LocalAuthController } from '@app/modules/auth/controllers/local-auth.co
 import { SocialsAuthController } from '@app/modules/auth/controllers/socials-auth.controller';
 import { JwtAuthGuard } from '@app/modules/auth/guards/jwt-auth.guard';
 import { AuthService } from '@app/modules/auth/services/auth.service';
+import { FacebookStrategy } from '@app/modules/auth/stragegies/facebook-strategy';
+import { GoogleStrategy } from '@app/modules/auth/stragegies/google-strategy';
 import { JwtStrategy } from '@app/modules/auth/stragegies/jwt.strategy';
 import { LocalStrategy } from '@app/modules/auth/stragegies/local.strategy';
 import { UsersModule } from '@app/modules/users/users.module';
@@ -29,6 +31,8 @@ import { UsersModule } from '@app/modules/users/users.module';
     AuthService,
     JwtStrategy,
     LocalStrategy,
+    GoogleStrategy,
+    FacebookStrategy,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

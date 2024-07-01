@@ -8,7 +8,12 @@ export const environmentVariablesSchema = z.object({
   DATABASE_URL: z.string(),
   JWT_SECRET: z.string().default('secret'),
   JWT_ACCESS_TOKEN_EXPIRATION_TIME: z.string().default('1d'),
-  JWT_REFRESH_TOKEN_EXPIRATION_TIME: z.string().default('7d'),
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
+  GOOGLE_CALLBACK_URL: z.string(),
+  FACEBOOK_CLIENT_ID: z.string(),
+  FACEBOOK_CLIENT_SECRET: z.string(),
+  FACEBOOK_CALLBACK_URL: z.string(),
 });
 
 export type EnvironmentVariables = z.infer<typeof environmentVariablesSchema>;
