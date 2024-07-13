@@ -33,6 +33,15 @@ describe('User (e2e)', () => {
     expect(accessToken).toBeDefined();
   });
 
+  describe('GET /profile', () => {
+    it('should return 401 if user is not authenticated', async () => {
+      await testingApp.express.request().get('/profile').expect(401);
+    });
+    it('should return user profile', async () => {
+      await testingApp.express.request().get('/profile').set('Authorization', `Bearer ${accessToken}`).expect(200);
+    });
+  });
+
   describe('PATCH /profile/change-password', () => {
     it('should return 401 if user is not authenticated', async () => {
       await testingApp.express
