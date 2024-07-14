@@ -13,9 +13,9 @@ model User {
   firstname String
   lastname  String
   password  String?
-  imageUrl  String?
   createdAt DateTime @default(now())
   provider  Provider @default(local)
+  media     Media?
 
   @@map("users")
 }
@@ -24,4 +24,15 @@ enum Provider {
   google
   facebook
   local
+}
+
+model Media {
+  id       String @id @default(uuid())
+  mimeType String
+  key      String
+  filename String
+  userId   String @unique
+  user     User   @relation(fields: [userId], references: [id])
+
+  @@map("media")
 }

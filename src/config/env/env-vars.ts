@@ -14,6 +14,10 @@ export const environmentVariablesSchema = z.object({
   FACEBOOK_CLIENT_ID: z.string(),
   FACEBOOK_CLIENT_SECRET: z.string(),
   FACEBOOK_CALLBACK_URL: z.string(),
+  AWS_S3_REGION: z.string().optional(),
+  AWS_S3_BUCKET_NAME: z.string().optional(),
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string(),
 });
 
 export type EnvironmentVariables = z.infer<typeof environmentVariablesSchema>;
