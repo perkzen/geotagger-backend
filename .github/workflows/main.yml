@@ -11,6 +11,10 @@ env:
   FACEBOOK_CLIENT_ID: secret
   FACEBOOK_CLIENT_SECRET: secret
   FACEBOOK_CALLBACK_URL: http://localhost:8000/auth/facebook/callback
+  AWS_ACCESS_KEY_ID: secret
+  AWS_SECRET_ACCESS_KEY: secret
+  AWS_S3_BUCKET_NAME: secret
+  AWS_S3_REGION: secret
 
 jobs:
   lint:

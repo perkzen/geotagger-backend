@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { isTestEnv } from '@app/common/utils/env-check';
 import { validateEnv } from '@app/config/env/env-var.validation';
+import { AwsModule } from '@app/modules/aws/aws.module';
 import { PrismaModule } from '@app/modules/db/prisma.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
+import { MediaModule } from './modules/media/media.module';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
@@ -18,6 +20,8 @@ import { UsersModule } from './modules/users/users.module';
     PrismaModule,
     AuthModule,
     UsersModule,
+    AwsModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,21 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
-import { CrudRepository } from '@app/common/repository/crud-repository.interface';
+import { Media, Prisma, User } from '@prisma/client';
 import { PrismaService } from '@app/modules/db/prisma.service';
 import { UpdateUserDto } from '@app/modules/users/dtos/update-user.dto';
 
 @Injectable()
-export class UsersRepository implements CrudRepository<Prisma.UserCreateInput, Prisma.UserUpdateInput, User> {
-  constructor(private readonly db: PrismaService) {}
+export class UsersRepository {
+  private readonly user: PrismaService['user'];
+
+  constructor(private readonly db: PrismaService) {
+    this.user = this.db.user;
+  }
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
-    return this.db.user.create({
+    return this.user.create({
       data,
     });
   }
 
   async delete(id: string): Promise<boolean> {
-    const user = await this.db.user.delete({
+    const user = await this.user.delete({
       where: {
         id,
       },
@@ -23,15 +26,12 @@ export class UsersRepository implements CrudRepository<Prisma.UserCreateInput, P
     return !!user;
   }
 
-  async findAll(): Promise<User[]> {
-    return this.db.user.findMany();
-  }
-
-  async findOne(id: string): Promise<User | null> {
-    return this.db.user.findUnique({
+  async findOne(id: string, include?: Prisma.UserInclude): Promise<(User & { media: Media | null }) | null> {
+    return this.user.findUnique({
       where: {
         id,
       },
+      include,
     });
   }
 
@@ -45,7 +45,7 @@ export class UsersRepository implements CrudRepository<Prisma.UserCreateInput, P
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.db.user.findUnique({
+    return this.user.findUnique({
       where: {
         email,
       },
