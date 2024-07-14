@@ -35,9 +35,8 @@ export class AwsS3Service {
       ContentType: mimeType,
     });
 
-    const res = await this.client.send(command);
+    await this.client.send(command);
 
-    console.log(res);
     return key;
   }
 
