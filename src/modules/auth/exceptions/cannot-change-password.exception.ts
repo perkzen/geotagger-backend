@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { UserErrorCode } from '@app/modules/users/enum/user-error-code.enum';
+import { AuthErrorCode } from '@app/modules/auth/enums/auth-error-code.enum';
 
 export class CannotChangePasswordException extends BadRequestException {
   constructor() {
@@ -10,7 +10,7 @@ export class CannotChangePasswordException extends BadRequestException {
     const response = super.getResponse() as object;
     return {
       ...response,
-      code: UserErrorCode.CANNOT_CHANGE_PASSWORD,
+      code: AuthErrorCode.CANNOT_CHANGE_PASSWORD,
     };
   }
 }

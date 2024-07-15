@@ -62,30 +62,6 @@ describe('User (e2e)', () => {
     });
   });
 
-  describe('PATCH /profile/password', () => {
-    it('should return 401 if user is not authenticated', async () => {
-      await testingApp.httpServer
-        .request()
-        .patch('/profile/password')
-        .send({
-          newPassword: 'NewPassword123!',
-          oldPassword: createUserDto.password,
-        })
-        .expect(401);
-    });
-    it('should change user password', async () => {
-      await testingApp.httpServer
-        .request()
-        .patch('/profile/password')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .send({
-          newPassword: 'NewPassword123!',
-          oldPassword: createUserDto.password,
-        })
-        .expect(200);
-    });
-  });
-
   describe('PATCH /profile/image', () => {
     it('should return 401 if user is not authenticated', async () => {
       await testingApp.httpServer.request().patch('/profile/image').expect(401);

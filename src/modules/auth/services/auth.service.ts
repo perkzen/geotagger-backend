@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
+import { UpdatePasswordDto } from '@app/modules/auth/dtos/update-password.dto';
+import { AuthStrategy } from '@app/modules/auth/enums/auth-strategy.enum';
+import { CannotChangePasswordException } from '@app/modules/auth/exceptions/cannot-change-password.exception';
 import { UserAlreadyExistsException } from '@app/modules/auth/exceptions/user-already-exists.exception';
 import { comparePasswords, hashPassword } from '@app/modules/auth/utils/password.utils';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
@@ -55,5 +58,25 @@ export class AuthService {
     }
 
     return await this.usersService.createLocalUser({ ...data, password: await hashPassword(data.password) });
+  }
+
+  /**
+   * User can only update their password if they are a local user,
+   * because only local users have passwords.
+   */
+  async changePassword(userId: string, { newPassword, oldPassword }: UpdatePasswordDto) {
+    const user = await this.usersService.findById(userId);
+
+    if (user.provider !== AuthStrategy.LOCAL) {
+      throw new CannotChangePasswordException();
+    }
+
+    const isPasswordValid = await comparePasswords(oldPassword, user.password);
+
+    if (!isPasswordValid) {
+      throw new CannotChangePasswordException();
+    }
+
+    await this.usersService.updatePassword(userId, await hashPassword(newPassword));
   }
 }
