@@ -15,7 +15,9 @@ export class MediaService {
   ) {}
 
   async uploadMedia(file: Express.Multer.File, userId: string, bucketPath: BucketPath): Promise<Media> {
-    this.logger.log({ userId }, `Uploading media file: ${file.originalname} to bucket: ${bucketPath}`);
+    this.logger.log(
+      `User (${userId}) is attempting to uploading media file (${file.originalname}) to bucket (${bucketPath})`,
+    );
 
     // https://github.com/expressjs/multer/issues/1104#issuecomment-1152987772 -> multer doesn't support utf8 filenames
     file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
@@ -25,16 +27,22 @@ export class MediaService {
 
     const objectKey = await this.awsS3Service.putObject(key, file.buffer, file.mimetype);
 
-    return this.mediaRepository.createOrUpdate({
+    const media = this.mediaRepository.createOrUpdate({
       key: objectKey,
       mimeType: file.mimetype,
       filename,
       userId,
     });
+
+    this.logger.log(
+      `User (${userId}) uploaded media file (${file.originalname}) to bucket (${bucketPath}) successfully`,
+    );
+
+    return media;
   }
 
   async deleteMedia(mediaId: string): Promise<boolean> {
-    this.logger.log({ mediaId }, 'Attempting to delete media from database and S3 storage');
+    this.logger.log(`Attempting to delete media (${mediaId}) from database and S3 storage`);
 
     try {
       return await this.mediaRepository.transaction(async (db) => {
@@ -47,11 +55,11 @@ export class MediaService {
           },
         });
 
-        this.logger.log({ mediaId }, 'Media deleted from database and S3 storage');
+        this.logger.log(`Media (${mediaId}) deleted from database and S3 storage`);
         return true;
       });
     } catch (error) {
-      this.logger.error({ mediaId, error }, 'Failed to delete media from database and S3 storage');
+      this.logger.error({ error }, `Failed to delete media (${mediaId}) from database and S3 storage`);
       return false;
     }
   }

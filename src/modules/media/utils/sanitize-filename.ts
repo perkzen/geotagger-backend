@@ -13,15 +13,14 @@ import { v4 as uuid } from 'uuid';
  * @param filename - The original file name.
  */
 export const sanitizeFilename = (filename: string): string => {
-  const baseName = parse(filename).name;
-  const extension = parse(filename).ext;
+  const { name, ext } = parse(filename);
 
-  const sanitizedFileName = slugify(baseName, {
+  const sanitizedFilename = slugify(name, {
     lower: true,
-    strict: true, // Removes unsafe character for URLs
+    strict: true,
   });
 
-  const newFileName = sanitizedFileName.substring(0, 22) + extension.toLowerCase();
+  const newFilename = sanitizedFilename.substring(0, 22) + ext.toLowerCase();
 
-  return `${uuid()}-${newFileName}`;
+  return `${uuid()}-${newFilename}`;
 };

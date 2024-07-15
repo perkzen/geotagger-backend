@@ -14,7 +14,6 @@ import { InjectS3Client } from '@app/modules/aws/s3/utils/inject-s3-client';
 export class AwsS3Service {
   private readonly logger = new Logger(AwsS3Service.name);
   private readonly bucketName: string;
-  private readonly region: string;
 
   constructor(
     @InjectS3Client()
@@ -22,7 +21,6 @@ export class AwsS3Service {
     private readonly configService: ConfigService,
   ) {
     this.bucketName = this.configService.getOrThrow('AWS_S3_BUCKET_NAME');
-    this.region = this.configService.getOrThrow('AWS_S3_REGION');
   }
 
   async putObject(key: string, body: Buffer, mimeType: string): Promise<string> {
