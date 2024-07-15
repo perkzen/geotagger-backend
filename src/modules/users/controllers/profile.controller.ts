@@ -1,9 +1,8 @@
-import { Controller, Get, Patch, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Patch, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { User } from '@app/modules/auth/decorators/user.decorator';
-import { JwtAuthGuard } from '@app/modules/auth/guards/jwt-auth.guard';
 import { UploadedImage } from '@app/modules/media/decorators/uploaded-image.decorator';
 import { ImageDto } from '@app/modules/media/dtos/image.dto';
 import { UserProfileDto } from '@app/modules/users/dtos/user-profile.dto';
