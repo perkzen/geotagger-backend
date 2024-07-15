@@ -32,8 +32,10 @@ export class UsersService {
   }
 
   async createSocialUser(data: CreateSocialUserDto) {
+    const { imageUrl: _, ...rest } = data;
+
     try {
-      return this.usersRepository.create(data);
+      return this.usersRepository.create(rest);
     } catch (error) {
       this.logger.error(error.message);
       throw new CannotCreateUserException();

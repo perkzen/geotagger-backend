@@ -29,15 +29,15 @@ describe('Auth (e2e)', () => {
 
   describe('/auth/register (POST)', () => {
     it('should register successfully', async () => {
-      const res = await testingApp.express.request().post('/auth/register').send(createUserDto);
+      const res = await testingApp.httpServer.request().post('/auth/register').send(createUserDto);
       expect(res.status).toBe(201);
     });
     it('should fail because user is already registered', async () => {
-      const res = await testingApp.express.request().post('/auth/register').send(createUserDto);
+      const res = await testingApp.httpServer.request().post('/auth/register').send(createUserDto);
       expect(res.status).toBe(409);
     });
     it('should fail because password is too short', async () => {
-      const res = await testingApp.express
+      const res = await testingApp.httpServer
         .request()
         .post('/auth/register')
         .send({
@@ -52,12 +52,12 @@ describe('Auth (e2e)', () => {
 
   describe('/auth/login (POST)', () => {
     it('should fail because user is not registered', async () => {
-      const res = await testingApp.express.request().post('/auth/login').send({ email: 'test', password: 'test' });
+      const res = await testingApp.httpServer.request().post('/auth/login').send({ email: 'test', password: 'test' });
       expect(res.status).toBe(401);
       expect(res.body.error).toBe('Invalid credentials');
     });
     it('should login successfully', async () => {
-      const res = await testingApp.express.request().post('/auth/login').send(loginUserDto);
+      const res = await testingApp.httpServer.request().post('/auth/login').send(loginUserDto);
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('accessToken');
     });

@@ -8,6 +8,7 @@ export class UserAlreadyExistsException extends ConflictException {
 
   getResponse(): object {
     const response = super.getResponse() as object;
+
     return {
       ...response,
       code: AuthErrorCode.USER_ALREADY_EXISTS,

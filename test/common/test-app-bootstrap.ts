@@ -2,21 +2,20 @@ import { ModuleMetadata } from '@nestjs/common';
 import { Test, TestingModule, TestingModuleBuilder } from '@nestjs/testing';
 import { AppModule } from '@app/app.module';
 import { PrismaService } from '@app/modules/db/prisma.service';
-import { TestNestExpress } from '@test/common/test-nest-express-app';
+import { TestHttpServer } from '@test/common/test-http-server';
 import { OverrideFunc } from '@test/common/types/override-func.type';
 import { TestBootstrapCompileOptions } from '@test/common/types/test-bootstrap-compile-options.type';
 
 export class TestAppBootstrap {
   moduleBuilder: TestingModuleBuilder;
   app: TestingModule;
-  express: TestNestExpress;
+  httpServer: TestHttpServer;
   db: PrismaService;
 
   constructor() {}
 
   async compile(options?: TestBootstrapCompileOptions): Promise<TestingModule> {
     const { metadata = {}, overrideFunc = undefined, disableAppModules = false } = { ...options };
-    const { start: expressStart = true } = { ...options?.express };
 
     if (!this.moduleBuilder) {
       this.createBuilder(metadata, overrideFunc, !disableAppModules);
@@ -26,9 +25,7 @@ export class TestAppBootstrap {
 
     this.db = this.app.get<PrismaService>(PrismaService);
 
-    if (expressStart) {
-      this.express = await TestNestExpress.createNestExpressApplication(this.app);
-    }
+    this.httpServer = await TestHttpServer.createHttpServer(this.app);
 
     return this.app;
   }
@@ -47,12 +44,13 @@ export class TestAppBootstrap {
   private createBuilder(
     metadata: ModuleMetadata,
     overrideFunc?: OverrideFunc,
-    loadAppModules: boolean = true,
+    useAppModule: boolean = true,
   ): TestAppBootstrap {
     if (!metadata.imports) {
       metadata.imports = [];
     }
-    if (loadAppModules) {
+
+    if (useAppModule) {
       metadata.imports.push(AppModule);
     }
 

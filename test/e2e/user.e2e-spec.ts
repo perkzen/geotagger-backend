@@ -46,10 +46,10 @@ describe('User (e2e)', () => {
 
   describe('GET /profile', () => {
     it('should return 401 if user is not authenticated', async () => {
-      await testingApp.express.request().get('/profile').expect(401);
+      await testingApp.httpServer.request().get('/profile').expect(401);
     });
     it('should return user profile', async () => {
-      const res = await testingApp.express
+      const res = await testingApp.httpServer
         .request()
         .get('/profile')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -64,7 +64,7 @@ describe('User (e2e)', () => {
 
   describe('PATCH /profile/password', () => {
     it('should return 401 if user is not authenticated', async () => {
-      await testingApp.express
+      await testingApp.httpServer
         .request()
         .patch('/profile/password')
         .send({
@@ -74,7 +74,7 @@ describe('User (e2e)', () => {
         .expect(401);
     });
     it('should change user password', async () => {
-      await testingApp.express
+      await testingApp.httpServer
         .request()
         .patch('/profile/password')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -88,10 +88,10 @@ describe('User (e2e)', () => {
 
   describe('PATCH /profile/image', () => {
     it('should return 401 if user is not authenticated', async () => {
-      await testingApp.express.request().patch('/profile/image').expect(401);
+      await testingApp.httpServer.request().patch('/profile/image').expect(401);
     });
     it('should return 400 for invalid file type', async () => {
-      await testingApp.express
+      await testingApp.httpServer
         .request()
         .patch('/profile/image')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -102,7 +102,7 @@ describe('User (e2e)', () => {
         });
     });
     it('should change user profile picture', async () => {
-      const res = await testingApp.express
+      const res = await testingApp.httpServer
         .request()
         .patch('/profile/image')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -115,7 +115,7 @@ describe('User (e2e)', () => {
       expect(res.body.email).toBe(createUserDto.email);
     });
     it("should set imageUrl to null if image wasn't provided", async () => {
-      const res = await testingApp.express
+      const res = await testingApp.httpServer
         .request()
         .patch('/profile/image')
         .set('Authorization', `Bearer ${accessToken}`)
