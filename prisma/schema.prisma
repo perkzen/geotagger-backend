@@ -27,12 +27,26 @@ enum Provider {
 }
 
 model Media {
-  id       String @id @default(uuid())
-  mimeType String
-  key      String
-  filename String
-  userId   String @unique
-  user     User   @relation(fields: [userId], references: [id])
+  id        String     @id @default(uuid())
+  mimeType  String
+  key       String
+  filename  String
+  createdAt DateTime   @default(now())
+  userId    String?    @unique
+  user      User?      @relation(fields: [userId], references: [id])
+  Location  Location[]
 
   @@map("media")
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  address   String
+  lat       Float
+  lng       Float
+  createdAt DateTime @default(now())
+  mediaId   String   @unique
+  media     Media    @relation(fields: [mediaId], references: [id])
+
+  @@map("location")
 }

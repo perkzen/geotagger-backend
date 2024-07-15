@@ -15,7 +15,6 @@ export class ProfileController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user profile' })
   @ApiOkResponse({ type: UserProfileDto })

@@ -1,11 +1,11 @@
-import { BaseSetup } from '@app/config/setups/base.setup';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import helmet from 'helmet';
-import compression from 'compression';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import compression from 'compression';
+import helmet from 'helmet';
 import { HttpExceptionFilter } from '@app/common/filters/http-exception.filter';
 import { LoggingInterceptor } from '@app/common/interceptors/logging.interceptor';
+import { BaseSetup } from '@app/config/setups/base.setup';
 
 export class MiddlewareSetup extends BaseSetup {
   constructor(protected readonly app: NestExpressApplication) {
