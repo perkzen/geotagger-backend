@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
@@ -26,6 +26,15 @@ export class LocationsController {
     @UploadedImage() image: Express.Multer.File,
   ) {
     const location = this.locationsService.create(userId, serializeToDto(CreateLocationDto, dto), image);
+    return serializeToDto(LocationDto, location);
+  }
+
+  @Get(':id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Find location by id' })
+  @ApiCreatedResponse({ type: LocationDto })
+  async getById(@Param('id') id: string) {
+    const location = this.locationsService.findById(id);
     return serializeToDto(LocationDto, location);
   }
 }

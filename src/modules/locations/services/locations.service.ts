@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
+import { LocationNotFoundException } from '@app/modules/locations/exceptions/location-not-found.exception';
 import { LocationsRepository } from '@app/modules/locations/repositories/locations.repository';
 import { MediaService } from '@app/modules/media/services/media.service';
 
@@ -23,5 +24,15 @@ export class LocationsService {
       await this.mediaService.deleteMedia(media.id);
       this.logger.log('Error creating location:', { userId, dto, error });
     }
+  }
+
+  async findById(id: string) {
+    const location = await this.locationsRepository.findOne(id, { media: true });
+
+    if (!location) {
+      throw new LocationNotFoundException(id);
+    }
+
+    return { ...location, imageUrl: await this.mediaService.getMediaUrl(location.media.key) };
   }
 }
