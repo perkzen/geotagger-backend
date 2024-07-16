@@ -12,8 +12,16 @@ describe('Locations (e2e)', () => {
   let testingApp: TestAppBootstrap;
 
   let accessToken: string;
+  let otherAccessToken: string;
 
   const createUserDto: CreateLocalUserDto = {
+    email: faker.internet.email(),
+    password: 'Password123!',
+    firstname: faker.person.firstName(),
+    lastname: faker.person.lastName(),
+  };
+
+  const otherUserDto: CreateLocalUserDto = {
     email: faker.internet.email(),
     password: 'Password123!',
     firstname: faker.person.firstName(),
@@ -33,11 +41,21 @@ describe('Locations (e2e)', () => {
 
     await createUser(authService, createUserDto);
     accessToken = await getAccessToken(authService, { email: createUserDto.email, password: createUserDto.password });
+
+    await createUser(authService, otherUserDto);
+    otherAccessToken = await getAccessToken(authService, {
+      email: otherUserDto.email,
+      password: otherUserDto.password,
+    });
   });
 
   afterAll(async () => {
     await testingApp.close();
     jest.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    await testingApp.db.location.deleteMany();
   });
 
   it('should be defined', () => {
@@ -140,6 +158,111 @@ describe('Locations (e2e)', () => {
       expect(locationRes.body.lat).toBe(51.5074);
       expect(locationRes.body.lng).toBe(0.1278);
       expect(locationRes.body.address).toBe('address');
+    });
+  });
+  describe('GET /locations/me', () => {
+    it('should return 401 if user is not authenticated', async () => {
+      await testingApp.httpServer.request().get('/locations/me').expect(401);
+    });
+    it('should return users locations', async () => {
+      await testingApp.httpServer
+        .request()
+        .post('/locations')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .field('address', 'address')
+        .field('lat', '51.5074')
+        .field('lng', '0.1278')
+        .attach('image', join(__dirname, '..', 'files', 'test.jpeg'))
+        .expect(201);
+
+      const locationsRes = await testingApp.httpServer
+        .request()
+        .get('/locations/me')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(locationsRes.body).toHaveLength(1);
+      expect(locationsRes.body[0].imageUrl).toBe('https://example.com/image.jpg');
+      expect(locationsRes.body[0].lat).toBe(51.5074);
+      expect(locationsRes.body[0].lng).toBe(0.1278);
+      expect(locationsRes.body[0].address).toBe('address');
+    });
+    it("should return empty array if user doesn't have locations", async () => {
+      const locationsRes = await testingApp.httpServer
+        .request()
+        .get('/locations/me')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(locationsRes.body).toHaveLength(0);
+    });
+  });
+  describe('DELETE /locations/:id', () => {
+    it('should return 401 if user is not authenticated', async () => {
+      await testingApp.httpServer.request().delete('/locations/1').expect(401);
+    });
+    it('should return 404 if location is not found', async () => {
+      await testingApp.httpServer
+        .request()
+        .delete('/locations/1')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(404)
+        .expect((res) => {
+          expect(res.body.error).toBe('Location with id 1 not found');
+        });
+    });
+    it('should return 403 if user is not owner of location', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post('/locations')
+        .set('Authorization', `Bearer ${otherAccessToken}`)
+        .field('address', 'address')
+        .field('lat', '51.5074')
+        .field('lng', '0.1278')
+        .attach('image', join(__dirname, '..', 'files', 'test.jpeg'))
+        .expect(201);
+
+      const locationId = res.body.id;
+
+      expect(locationId).toBeDefined();
+
+      await testingApp.httpServer
+        .request()
+        .delete(`/locations/${locationId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(403)
+        .expect((res) => {
+          expect(res.body.error).toBe('Cannot access the requested resource');
+        });
+    });
+    it('should delete location', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post('/locations')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .field('address', 'address')
+        .field('lat', '51.5074')
+        .field('lng', '0.1278')
+        .attach('image', join(__dirname, '..', 'files', 'test.jpeg'))
+        .expect(201);
+
+      const locationId = res.body.id;
+
+      expect(locationId).toBeDefined();
+
+      await testingApp.httpServer
+        .request()
+        .delete(`/locations/${locationId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+
+      const locationRes = await testingApp.httpServer
+        .request()
+        .get(`/locations/${locationId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(404);
+
+      expect(locationRes.body.error).toBe(`Location with id ${locationId} not found`);
     });
   });
 });

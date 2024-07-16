@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
@@ -30,6 +30,15 @@ export class LocationsController {
     return serializeToDto(LocationDto, location);
   }
 
+  @Get('me')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Find users locations' })
+  @ApiCreatedResponse({ type: [LocationDto] })
+  async getByUser(@User('userId') userId: string) {
+    const locations = await this.locationsService.findByUser(userId);
+    return serializeToDto(LocationDto, locations);
+  }
+
   @Get(':id')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find location by id' })
@@ -37,5 +46,12 @@ export class LocationsController {
   async getById(@Param('id') id: string) {
     const location = this.locationsService.findById(id);
     return serializeToDto(LocationDto, location);
+  }
+
+  @Delete(':id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete location by id' })
+  async delete(@Param('id') id: string, @User('userId') userId: string) {
+    await this.locationsService.delete(id, userId);
   }
 }

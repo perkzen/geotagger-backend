@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { CannotAccessResourceException } from '@app/common/exceptions/cannot-access-resource.exception';
 import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
+import { LocationDto } from '@app/modules/locations/dtos/location.dto';
 import { CannotCreateLocationException } from '@app/modules/locations/exceptions/cannot-create-location.exception';
 import { LocationNotFoundException } from '@app/modules/locations/exceptions/location-not-found.exception';
 import { LocationsRepository } from '@app/modules/locations/repositories/locations.repository';
@@ -36,5 +38,31 @@ export class LocationsService {
     }
 
     return { ...location, imageUrl: await this.mediaService.getMediaUrl(location.media.key) };
+  }
+
+  async findByUser(userId: string): Promise<LocationDto[]> {
+    const locations = await this.locationsRepository.findByUserId(userId, { media: true });
+
+    return Promise.all(
+      locations.map(async (location) => ({
+        ...location,
+        imageUrl: await this.mediaService.getMediaUrl(location.media.key),
+      })),
+    );
+  }
+
+  async delete(id: string, userId: string) {
+    const location = await this.locationsRepository.findOne(id);
+
+    if (!location) {
+      throw new LocationNotFoundException(id);
+    }
+
+    if (location.userId !== userId) {
+      throw new CannotAccessResourceException();
+    }
+
+    await this.mediaService.deleteMedia(location.mediaId);
+    return this.locationsRepository.delete(id);
   }
 }

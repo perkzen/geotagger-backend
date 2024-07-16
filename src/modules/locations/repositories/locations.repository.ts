@@ -37,4 +37,22 @@ export class LocationsRepository {
       include,
     });
   }
+
+  async findByUserId(userId: string, include?: Prisma.LocationInclude) {
+    return this.location.findMany({
+      where: {
+        userId,
+      },
+      include,
+    });
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const location = await this.location.delete({
+      where: {
+        id,
+      },
+    });
+    return !!location;
+  }
 }
