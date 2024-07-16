@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Location } from '@prisma/client';
 import { CannotAccessResourceException } from '@app/common/exceptions/cannot-access-resource.exception';
 import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
@@ -19,13 +20,17 @@ export class LocationsService {
     private readonly mediaService: MediaService,
   ) {}
 
+  private async toLocationDto(location: Location, mediaKey: string): Promise<LocationDto> {
+    const imageUrl = await this.mediaService.getMediaUrl(mediaKey);
+    return { ...location, imageUrl };
+  }
+
   async create(userId: string, dto: CreateLocationDto, image: Express.Multer.File) {
     const media = await this.mediaService.uploadMedia(image, BucketPath.LOCATIONS_IMAGES);
 
     try {
       const location = await this.locationsRepository.create({ ...dto, userId, mediaId: media.id });
-
-      return { ...location, imageUrl: await this.mediaService.getMediaUrl(media.key) };
+      return this.toLocationDto(location, media.key);
     } catch (error) {
       await this.mediaService.deleteMedia(media.id);
       this.logger.log('Error creating location:', { userId, dto, error });
@@ -40,18 +45,13 @@ export class LocationsService {
       throw new LocationNotFoundException(id);
     }
 
-    return { ...location, imageUrl: await this.mediaService.getMediaUrl(location.media.key) };
+    return this.toLocationDto(location, location.media.key);
   }
 
   async findByUser(userId: string): Promise<LocationDto[]> {
     const locations = await this.locationsRepository.findByUserId(userId, { media: true });
 
-    return Promise.all(
-      locations.map(async (location) => ({
-        ...location,
-        imageUrl: await this.mediaService.getMediaUrl(location.media.key),
-      })),
-    );
+    return Promise.all(locations.map((location) => this.toLocationDto(location, location.media.key)));
   }
 
   async delete(id: string, userId: string) {
@@ -82,9 +82,7 @@ export class LocationsService {
 
     if (!image) {
       const updatedLocation = await this.locationsRepository.update(id, dto);
-      const imageUrl = await this.mediaService.getMediaUrl(location.media.key);
-
-      return { ...updatedLocation, imageUrl };
+      return await this.toLocationDto(updatedLocation, location.media.key);
     }
 
     const media = await this.mediaService.uploadMedia(image, BucketPath.LOCATIONS_IMAGES);
@@ -92,13 +90,10 @@ export class LocationsService {
     try {
       await this.mediaService.deleteMedia(location.mediaId);
       const updatedLocation = await this.locationsRepository.update(id, { ...dto, mediaId: media.id });
-
-      return { ...updatedLocation, imageUrl: await this.mediaService.getMediaUrl(media.key) };
+      return await this.toLocationDto(updatedLocation, media.key);
     } catch (error) {
       await this.mediaService.deleteMedia(media.id);
-
       this.logger.log('Error updating location:', { userId, dto, error });
-
       throw new CannotUpdateLocationException();
     }
   }
