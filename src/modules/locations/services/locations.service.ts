@@ -69,8 +69,8 @@ export class LocationsService {
     return this.locationsRepository.delete(id);
   }
 
-  async update(id: string, userId: string, dto: UpdateLocationDto, image: Express.Multer.File) {
-    const location = await this.locationsRepository.findOne(id);
+  async update(id: string, userId: string, dto: UpdateLocationDto, image?: Express.Multer.File) {
+    const location = await this.locationsRepository.findOne(id, { media: true });
 
     if (!location) {
       throw new LocationNotFoundException(id);
@@ -78,6 +78,13 @@ export class LocationsService {
 
     if (location.userId !== userId) {
       throw new CannotAccessResourceException();
+    }
+
+    if (!image) {
+      const updatedLocation = await this.locationsRepository.update(id, dto);
+      const imageUrl = await this.mediaService.getMediaUrl(location.media.key);
+
+      return { ...updatedLocation, imageUrl };
     }
 
     const media = await this.mediaService.uploadMedia(image, BucketPath.LOCATIONS_IMAGES);

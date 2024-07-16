@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { User } from '@app/modules/auth/decorators/user.decorator';
 import { CreateLocationDto, CreateLocationSwaggerDto } from '@app/modules/locations/dtos/create-location.dto';
 import { LocationDto } from '@app/modules/locations/dtos/location.dto';
-import { UpdateLocationDto } from '@app/modules/locations/dtos/update-location.dto';
+import { UpdateLocationDto, UpdateLocationSwaggerDto } from '@app/modules/locations/dtos/update-location.dto';
 import { LocationsService } from '@app/modules/locations/services/locations.service';
 import { UploadedImage } from '@app/modules/media/decorators/uploaded-image.decorator';
 
@@ -56,16 +56,18 @@ export class LocationsController {
     await this.locationsService.delete(id, userId);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update location by id' })
+  @ApiBody({ type: UpdateLocationSwaggerDto })
   @ApiCreatedResponse({ type: LocationDto })
   async update(
     @Param('id') id: string,
     @User('userId') userId: string,
     @Body() dto: UpdateLocationDto,
-    @UploadedImage() image: Express.Multer.File,
+    @UploadedImage(false) image?: Express.Multer.File,
   ) {
     const locationDto = serializeToDto(UpdateLocationDto, dto);
     const res = await this.locationsService.update(id, userId, locationDto, image);
