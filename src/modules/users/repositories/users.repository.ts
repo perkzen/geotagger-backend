@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Media, Prisma, User } from '@prisma/client';
 import { PrismaService } from '@app/modules/db/prisma.service';
-import { UpdateUserDto } from '@app/modules/users/dtos/update-user.dto';
 
 @Injectable()
 export class UsersRepository {
@@ -35,7 +34,7 @@ export class UsersRepository {
     });
   }
 
-  async update(id: string, data: UpdateUserDto): Promise<User> {
+  async update(id: string, data: Prisma.UserUpdateInput): Promise<User> {
     return this.db.user.update({
       where: {
         id,
@@ -48,6 +47,17 @@ export class UsersRepository {
     return this.user.findUnique({
       where: {
         email,
+      },
+    });
+  }
+
+  async updateMedia(userId: string, mediaId: string | null) {
+    return this.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        mediaId,
       },
     });
   }

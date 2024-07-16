@@ -15,7 +15,7 @@ export class LocationsService {
   ) {}
 
   async create(userId: string, dto: CreateLocationDto, image: Express.Multer.File) {
-    const media = await this.mediaService.uploadMedia(image, userId, BucketPath.LOCATIONS_IMAGES);
+    const media = await this.mediaService.uploadMedia(image, BucketPath.LOCATIONS_IMAGES);
 
     try {
       const location = await this.locationsRepository.create(dto, media.id);

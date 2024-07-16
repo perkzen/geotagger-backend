@@ -15,7 +15,8 @@ model User {
   password  String?
   createdAt DateTime @default(now())
   provider  Provider @default(local)
-  media     Media?
+  mediaId   String?  @unique
+  media     Media?   @relation(fields: [mediaId], references: [id])
 
   @@map("users")
 }
@@ -29,12 +30,11 @@ enum Provider {
 model Media {
   id        String     @id @default(uuid())
   mimeType  String
-  key       String
+  key       String     @unique
   filename  String
   createdAt DateTime   @default(now())
-  userId    String?    @unique
-  user      User?      @relation(fields: [userId], references: [id])
-  Location  Location[]
+  Locations Location[]
+  Users     User[]
 
   @@map("media")
 }

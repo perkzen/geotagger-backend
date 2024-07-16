@@ -83,7 +83,8 @@ export class UsersService {
     }
 
     if (image) {
-      await this.mediaService.uploadMedia(image, userId, BucketPath.PROFILE_IMAGES);
+      const media = await this.mediaService.uploadMedia(image, BucketPath.PROFILE_IMAGES);
+      await this.usersRepository.updateMedia(userId, media.id);
     }
 
     return this.getProfile(userId);
