@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Location, Media, Prisma } from '@prisma/client';
 import { PrismaService } from '@app/modules/db/prisma.service';
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
+import { UpdateLocationDto } from '@app/modules/locations/dtos/update-location.dto';
 
 @Injectable()
 export class LocationsRepository {
@@ -11,21 +12,9 @@ export class LocationsRepository {
     this.location = this.db.location;
   }
 
-  async create(data: CreateLocationDto, userId: string, mediaId: string) {
+  async create(data: CreateLocationDto & { userId: string; mediaId: string }) {
     return this.location.create({
-      data: {
-        ...data,
-        user: {
-          connect: {
-            id: userId,
-          },
-        },
-        media: {
-          connect: {
-            id: mediaId,
-          },
-        },
-      },
+      data,
     });
   }
 
@@ -54,5 +43,14 @@ export class LocationsRepository {
       },
     });
     return !!location;
+  }
+
+  async update(id: string, data: UpdateLocationDto & { mediaId?: string }) {
+    return this.location.update({
+      where: {
+        id,
+      },
+      data,
+    });
   }
 }

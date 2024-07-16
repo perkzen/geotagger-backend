@@ -265,4 +265,81 @@ describe('Locations (e2e)', () => {
       expect(locationRes.body.error).toBe(`Location with id ${locationId} not found`);
     });
   });
+  describe('PATCH /locations/:id', () => {
+    it('should return 401 if user is not authenticated', async () => {
+      await testingApp.httpServer.request().patch('/locations/1').expect(401);
+    });
+    it('should return 404 if location is not found', async () => {
+      await testingApp.httpServer
+        .request()
+        .patch('/locations/1')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .field('address', 'address2')
+        .field('lat', '52.5074')
+        .field('lng', '3.1278')
+        .attach('image', join(__dirname, '..', 'files', 'test.jpeg'))
+        .expect(404)
+        .expect((res) => {
+          expect(res.body.error).toBe('Location with id 1 not found');
+        });
+    });
+    it('should return 403 if user is not owner of location', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post('/locations')
+        .set('Authorization', `Bearer ${otherAccessToken}`)
+        .field('address', 'address')
+        .field('lat', '51.5074')
+        .field('lng', '0.1278')
+        .attach('image', join(__dirname, '..', 'files', 'test.jpeg'))
+        .expect(201);
+
+      const locationId = res.body.id;
+
+      expect(locationId).toBeDefined();
+
+      await testingApp.httpServer
+        .request()
+        .patch(`/locations/${locationId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .field('address', 'address')
+        .field('lat', '51.5074')
+        .field('lng', '0.1278')
+        .attach('image', join(__dirname, '..', 'files', 'test.jpeg'))
+        .expect(403)
+        .expect((res) => {
+          expect(res.body.error).toBe('Cannot access the requested resource');
+        });
+    });
+    it('should update location', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post('/locations')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .field('address', 'address')
+        .field('lat', '51.5074')
+        .field('lng', '0.1278')
+        .attach('image', join(__dirname, '..', 'files', 'test.jpeg'))
+        .expect(201);
+
+      const locationId = res.body.id;
+
+      expect(locationId).toBeDefined();
+
+      const updatedRes = await testingApp.httpServer
+        .request()
+        .patch(`/locations/${locationId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .field('address', 'updated address')
+        .field('lat', '51.5074')
+        .field('lng', '0.1278')
+        .attach('image', join(__dirname, '..', 'files', 'test.jpeg'))
+        .expect(200);
+
+      expect(updatedRes.body.imageUrl).toBe('https://example.com/image.jpg');
+      expect(updatedRes.body.lat).toBe(51.5074);
+      expect(updatedRes.body.lng).toBe(0.1278);
+      expect(updatedRes.body.address).toBe('updated address');
+    });
+  });
 });
