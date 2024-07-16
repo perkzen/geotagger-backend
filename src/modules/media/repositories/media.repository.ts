@@ -27,7 +27,7 @@ export class MediaRepository {
   async createOrUpdate(data: CreateMediaDto) {
     return this.media.upsert({
       where: {
-        userId: data.userId,
+        key: data.key,
       },
       update: data,
       create: data,

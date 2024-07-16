@@ -8,14 +8,16 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String     @id @default(uuid())
+  email     String     @unique
   firstname String
   lastname  String
   password  String?
-  createdAt DateTime @default(now())
-  provider  Provider @default(local)
-  media     Media?
+  createdAt DateTime   @default(now())
+  provider  Provider   @default(local)
+  mediaId   String?    @unique
+  media     Media?     @relation(fields: [mediaId], references: [id])
+  Location  Location[]
 
   @@map("users")
 }
@@ -29,12 +31,11 @@ enum Provider {
 model Media {
   id        String     @id @default(uuid())
   mimeType  String
-  key       String
+  key       String     @unique
   filename  String
   createdAt DateTime   @default(now())
-  userId    String?    @unique
-  user      User?      @relation(fields: [userId], references: [id])
-  Location  Location[]
+  Locations Location[]
+  Users     User[]
 
   @@map("media")
 }
@@ -45,6 +46,8 @@ model Location {
   lat       Float
   lng       Float
   createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
   mediaId   String   @unique
   media     Media    @relation(fields: [mediaId], references: [id])
 

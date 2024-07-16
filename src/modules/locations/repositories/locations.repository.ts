@@ -11,10 +11,15 @@ export class LocationsRepository {
     this.location = this.db.location;
   }
 
-  async create(data: CreateLocationDto, mediaId: string) {
+  async create(data: CreateLocationDto, userId: string, mediaId: string) {
     return this.location.create({
       data: {
         ...data,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
         media: {
           connect: {
             id: mediaId,

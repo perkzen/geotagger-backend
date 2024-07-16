@@ -25,7 +25,8 @@ export class LocationsController {
     @Body() dto: CreateLocationDto,
     @UploadedImage() image: Express.Multer.File,
   ) {
-    const location = this.locationsService.create(userId, serializeToDto(CreateLocationDto, dto), image);
+    const locationDto = serializeToDto(CreateLocationDto, dto);
+    const location = this.locationsService.create(userId, locationDto, image);
     return serializeToDto(LocationDto, location);
   }
 

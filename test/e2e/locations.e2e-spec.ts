@@ -91,4 +91,55 @@ describe('Locations (e2e)', () => {
         });
     });
   });
+
+  describe('GET /locations/:id', () => {
+    it('should return 401 if user is not authenticated', async () => {
+      await testingApp.httpServer.request().get('/locations/1').expect(401);
+    });
+    it('should return 404 if location is not found', async () => {
+      await testingApp.httpServer
+        .request()
+        .get('/locations/1')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(404)
+        .expect((res) => {
+          expect(res.body.error).toBe('Location with id 1 not found');
+        });
+    });
+    it("should return 404 if location doesn't not exist", async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .get('/locations/1')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(404);
+
+      expect(res.body.error).toBe('Location with id 1 not found');
+    });
+    it('should return location', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post('/locations')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .field('address', 'address')
+        .field('lat', '51.5074')
+        .field('lng', '0.1278')
+        .attach('image', join(__dirname, '..', 'files', 'test.jpeg'))
+        .expect(201);
+
+      const locationId = res.body.id;
+
+      expect(locationId).toBeDefined();
+
+      const locationRes = await testingApp.httpServer
+        .request()
+        .get(`/locations/${locationId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(locationRes.body.imageUrl).toBe('https://example.com/image.jpg');
+      expect(locationRes.body.lat).toBe(51.5074);
+      expect(locationRes.body.lng).toBe(0.1278);
+      expect(locationRes.body.address).toBe('address');
+    });
+  });
 });
