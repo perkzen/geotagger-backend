@@ -49,8 +49,13 @@ export class LocationsService {
     return this.toLocationDto(location, location.media.key);
   }
 
-  async findByUser(userId: string, query: PaginationQuery) {
+  async listByUser(userId: string, query: PaginationQuery) {
     const [data, total] = await this.locationsRepository.findByUserIdWithPagination(userId, query);
+    return { data, meta: { total, take: query.take, skip: query.skip } };
+  }
+
+  async list(query: PaginationQuery) {
+    const [data, total] = await this.locationsRepository.findManyWithPagination(query);
     return { data, meta: { total, take: query.take, skip: query.skip } };
   }
 

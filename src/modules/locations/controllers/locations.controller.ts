@@ -34,12 +34,21 @@ export class LocationsController {
     return serializeToDto(LocationDto, location);
   }
 
+  @Get()
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List locations with pagination' })
+  @ApiPaginatedResponse(LocationDto)
+  async list(@Query() query: PaginationQuery) {
+    const data = await this.locationsService.list(query);
+    return serializeToPaginationDto(LocationDto, data);
+  }
+
   @Get('me')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find users locations' })
   @ApiPaginatedResponse(LocationDto)
   async getByUser(@Query() query: PaginationQuery, @User('userId') userId: string) {
-    const data = await this.locationsService.findByUser(userId, query);
+    const data = await this.locationsService.listByUser(userId, query);
     return serializeToPaginationDto(LocationDto, data);
   }
 

@@ -47,6 +47,21 @@ export class LocationsRepository {
     return this.db.$transaction([this.location.findMany(query), this.location.count({ where: query.where })]);
   }
 
+  async findManyWithPagination({ take, skip }: PaginationQuery) {
+    const query: Prisma.LocationFindManyArgs = {
+      include: {
+        media: true,
+      },
+      orderBy: {
+        createdAt: DEFAULT_ORDER,
+      },
+      take,
+      skip,
+    };
+
+    return this.db.$transaction([this.location.findMany(query), this.location.count()]);
+  }
+
   async delete(id: string): Promise<boolean> {
     const location = await this.location.delete({
       where: {
