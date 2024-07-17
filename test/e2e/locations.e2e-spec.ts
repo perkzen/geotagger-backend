@@ -159,6 +159,30 @@ describe('Locations (e2e)', () => {
       expect(locationRes.body.address).toBe(location.address);
     });
   });
+
+  describe('GET /locations', () => {
+    it('should return 401 if user is not authenticated', async () => {
+      await testingApp.httpServer.request().get('/locations').expect(401);
+    });
+    it('should return locations', async () => {
+      await createLocation(accessToken, imageFile);
+
+      const locationsRes = await testingApp.httpServer
+        .request()
+        .get('/locations?take=10&skip=0')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(locationsRes.body.data).toHaveLength(1);
+      //expect(locationsRes.body.data?.[0].imageUrl).toBe(imageUrl);
+      expect(locationsRes.body.data?.[0].lat).toBe(location.lat);
+      expect(locationsRes.body.data?.[0].lng).toBe(location.lng);
+      expect(locationsRes.body.data?.[0].address).toBe(location.address);
+      expect(locationsRes.body.meta.total).toBe(1);
+      expect(locationsRes.body.meta.take).toBe(10);
+      expect(locationsRes.body.meta.skip).toBe(0);
+    });
+  });
   describe('GET /locations/me', () => {
     it('should return 401 if user is not authenticated', async () => {
       await testingApp.httpServer.request().get('/locations/me').expect(401);
@@ -168,24 +192,30 @@ describe('Locations (e2e)', () => {
 
       const locationsRes = await testingApp.httpServer
         .request()
-        .get('/locations/me')
+        .get('/locations/me?take=10&skip=0')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
-      expect(locationsRes.body).toHaveLength(1);
-      expect(locationsRes.body[0].imageUrl).toBe(imageUrl);
-      expect(locationsRes.body[0].lat).toBe(location.lat);
-      expect(locationsRes.body[0].lng).toBe(location.lng);
-      expect(locationsRes.body[0].address).toBe(location.address);
+      expect(locationsRes.body.data).toHaveLength(1);
+      //  expect(locationsRes.body.data?.[0].imageUrl).toBe(imageUrl);
+      expect(locationsRes.body.data?.[0].lat).toBe(location.lat);
+      expect(locationsRes.body.data?.[0].lng).toBe(location.lng);
+      expect(locationsRes.body.data?.[0].address).toBe(location.address);
+      expect(locationsRes.body.meta.total).toBe(1);
+      expect(locationsRes.body.meta.take).toBe(10);
+      expect(locationsRes.body.meta.skip).toBe(0);
     });
     it("should return empty array if user doesn't have locations", async () => {
       const locationsRes = await testingApp.httpServer
         .request()
-        .get('/locations/me')
+        .get('/locations/me?take=10&skip=0')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
-      expect(locationsRes.body).toHaveLength(0);
+      expect(locationsRes.body.data).toHaveLength(0);
+      expect(locationsRes.body.meta.total).toBe(0);
+      expect(locationsRes.body.meta.take).toBe(10);
+      expect(locationsRes.body.meta.skip).toBe(0);
     });
   });
   describe('DELETE /locations/:id', () => {

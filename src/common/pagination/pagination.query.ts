@@ -8,15 +8,15 @@ export class PaginationQuery {
     required: false,
     default: DEFAULT_TAKE,
   })
-  @Transform(({ value }) => value | DEFAULT_TAKE)
+  @Transform(({ value }) => parseInt(value, 10))
   @IsPositive()
-  take?: number;
+  take: number;
 
   @ApiProperty({
     required: false,
     default: DEFAULT_SKIP,
   })
-  @Transform(({ value }) => value | DEFAULT_SKIP)
+  @Transform(({ value }) => parseInt(value, 10))
   @Min(0)
-  skip?: number;
+  skip: number;
 }
