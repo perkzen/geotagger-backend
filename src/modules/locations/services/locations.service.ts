@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Location } from '@prisma/client';
 import { CannotAccessResourceException } from '@app/common/exceptions/cannot-access-resource.exception';
+import { PaginationQuery } from '@app/common/pagination/pagination.query';
 import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
 import { LocationDto } from '@app/modules/locations/dtos/location.dto';
@@ -48,10 +49,9 @@ export class LocationsService {
     return this.toLocationDto(location, location.media.key);
   }
 
-  async findByUser(userId: string): Promise<LocationDto[]> {
-    const locations = await this.locationsRepository.findByUserId(userId, { media: true });
-
-    return Promise.all(locations.map((location) => this.toLocationDto(location, location.media.key)));
+  async findByUser(userId: string, query: PaginationQuery) {
+    const [data, total] = await this.locationsRepository.findByUserIdWithPagination(userId, query);
+    return { data, meta: { total, take: query.take, skip: query.skip } };
   }
 
   async delete(id: string, userId: string) {

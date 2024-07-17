@@ -1,6 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
+import { PaginationQuery } from '@app/common/pagination/pagination.query';
+import { serializeToPaginationDto } from '@app/common/pagination/serializte-to-pagniated-dto';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { User } from '@app/modules/auth/decorators/user.decorator';
 import { CreateLocationDto, CreateLocationSwaggerDto } from '@app/modules/locations/dtos/create-location.dto';
@@ -34,10 +37,10 @@ export class LocationsController {
   @Get('me')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find users locations' })
-  @ApiCreatedResponse({ type: [LocationDto] })
-  async getByUser(@User('userId') userId: string) {
-    const locations = await this.locationsService.findByUser(userId);
-    return serializeToDto(LocationDto, locations);
+  @ApiPaginatedResponse(LocationDto)
+  async getByUser(@Query() query: PaginationQuery, @User('userId') userId: string) {
+    const data = await this.locationsService.findByUser(userId, query);
+    return serializeToPaginationDto(LocationDto, data);
   }
 
   @Get(':id')

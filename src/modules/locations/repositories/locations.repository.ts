@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Location, Media, Prisma } from '@prisma/client';
+import { DEFAULT_ORDER } from '@app/common/pagination/pagination.constants';
+import { PaginationQuery } from '@app/common/pagination/pagination.query';
 import { PrismaService } from '@app/modules/db/prisma.service';
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
 import { UpdateLocationDto } from '@app/modules/locations/dtos/update-location.dto';
@@ -27,13 +29,22 @@ export class LocationsRepository {
     });
   }
 
-  async findByUserId(userId: string, include?: Prisma.LocationInclude) {
-    return this.location.findMany({
+  async findByUserIdWithPagination(userId: string, { take, skip }: PaginationQuery) {
+    const query: Prisma.LocationFindManyArgs = {
       where: {
         userId,
       },
-      include,
-    });
+      include: {
+        media: true,
+      },
+      orderBy: {
+        createdAt: DEFAULT_ORDER,
+      },
+      take,
+      skip,
+    };
+
+    return this.db.$transaction([this.location.findMany(query), this.location.count({ where: query.where })]);
   }
 
   async delete(id: string): Promise<boolean> {
