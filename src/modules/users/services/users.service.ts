@@ -28,10 +28,8 @@ export class UsersService {
   }
 
   async createSocialUser(data: CreateSocialUserDto) {
-    const { imageUrl: _, ...rest } = data;
-
     try {
-      return this.usersRepository.create(rest);
+      return this.usersRepository.create(data);
     } catch (error) {
       this.logger.error(error.message);
       throw new CannotCreateUserException();
@@ -65,7 +63,7 @@ export class UsersService {
 
     return {
       ...user,
-      imageUrl: user.media ? await this.mediaService.getMediaUrl(user.media.key) : null,
+      imageUrl: user.media ? await this.mediaService.getMediaUrl(user.media.key) : user.imageUrl,
     };
   }
 
