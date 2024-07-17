@@ -7,6 +7,7 @@ import { PrismaModule } from '@app/modules/db/prisma.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
+import { LocationsModule } from './modules/locations/locations.module';
 import { MediaModule } from './modules/media/media.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -22,6 +23,7 @@ import { UsersModule } from './modules/users/users.module';
     UsersModule,
     AwsModule,
     MediaModule,
+    LocationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

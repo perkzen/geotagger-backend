@@ -14,16 +14,14 @@ export class MediaService {
     private readonly mediaRepository: MediaRepository,
   ) {}
 
-  async uploadMedia(file: Express.Multer.File, userId: string, bucketPath: BucketPath): Promise<Media> {
-    this.logger.log(
-      `User (${userId}) is attempting to uploading media file (${file.originalname}) to bucket (${bucketPath})`,
-    );
+  async uploadMedia(file: Express.Multer.File, bucketPath: BucketPath): Promise<Media> {
+    this.logger.log(`Attempting to uploading media file (${file.originalname}) to bucket (${bucketPath})`);
 
     // https://github.com/expressjs/multer/issues/1104#issuecomment-1152987772 -> multer doesn't support utf8 filenames
     file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
 
     const filename = sanitizeFilename(file.originalname);
-    const key = `${bucketPath}/${userId}/${filename}`;
+    const key = `${bucketPath}/${filename}`;
 
     const objectKey = await this.awsS3Service.putObject(key, file.buffer, file.mimetype);
 
@@ -31,12 +29,9 @@ export class MediaService {
       key: objectKey,
       mimeType: file.mimetype,
       filename,
-      userId,
     });
 
-    this.logger.log(
-      `User (${userId}) uploaded media file (${file.originalname}) to bucket (${bucketPath}) successfully`,
-    );
+    this.logger.log(`Uploaded media file (${file.originalname}) to bucket (${bucketPath}) successfully`);
 
     return media;
   }
