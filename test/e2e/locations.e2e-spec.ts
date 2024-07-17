@@ -174,7 +174,7 @@ describe('Locations (e2e)', () => {
         .expect(200);
 
       expect(locationsRes.body.data).toHaveLength(1);
-      //expect(locationsRes.body.data?.[0].imageUrl).toBe(imageUrl);
+      expect(locationsRes.body.data?.[0].imageUrl).toBe(imageUrl);
       expect(locationsRes.body.data?.[0].lat).toBe(location.lat);
       expect(locationsRes.body.data?.[0].lng).toBe(location.lng);
       expect(locationsRes.body.data?.[0].address).toBe(location.address);
@@ -197,7 +197,7 @@ describe('Locations (e2e)', () => {
         .expect(200);
 
       expect(locationsRes.body.data).toHaveLength(1);
-      //  expect(locationsRes.body.data?.[0].imageUrl).toBe(imageUrl);
+      expect(locationsRes.body.data?.[0].imageUrl).toBe(imageUrl);
       expect(locationsRes.body.data?.[0].lat).toBe(location.lat);
       expect(locationsRes.body.data?.[0].lng).toBe(location.lng);
       expect(locationsRes.body.data?.[0].address).toBe(location.address);

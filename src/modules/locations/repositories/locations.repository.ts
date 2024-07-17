@@ -44,7 +44,17 @@ export class LocationsRepository {
       skip,
     };
 
-    return this.db.$transaction([this.location.findMany(query), this.location.count({ where: query.where })]);
+    return this.db.$transaction([
+      this.location.findMany(query),
+      this.location.count({ where: query.where }),
+    ]) as Promise<
+      [
+        (Location & {
+          media: Media;
+        })[],
+        number,
+      ]
+    >;
   }
 
   async findManyWithPagination({ take, skip }: PaginationQuery) {
@@ -59,7 +69,14 @@ export class LocationsRepository {
       skip,
     };
 
-    return this.db.$transaction([this.location.findMany(query), this.location.count()]);
+    return this.db.$transaction([this.location.findMany(query), this.location.count()]) as Promise<
+      [
+        (Location & {
+          media: Media;
+        })[],
+        number,
+      ]
+    >;
   }
 
   async delete(id: string): Promise<boolean> {
