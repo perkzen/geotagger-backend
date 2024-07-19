@@ -10,6 +10,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { LocationsModule } from './modules/locations/locations.module';
 import { MediaModule } from './modules/media/media.module';
 import { UsersModule } from './modules/users/users.module';
+import { GuessModule } from './modules/guess/guess.module';
+import { GoogleModule } from './modules/google/google.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { UsersModule } from './modules/users/users.module';
     AwsModule,
     MediaModule,
     LocationsModule,
+    GuessModule,
+    GoogleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

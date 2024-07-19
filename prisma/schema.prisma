@@ -19,6 +19,7 @@ model User {
   mediaId   String?    @unique
   media     Media?     @relation(fields: [mediaId], references: [id])
   Location  Location[]
+  Guess     Guess[]
 
   @@map("users")
 }
@@ -51,6 +52,20 @@ model Location {
   user      User     @relation(fields: [userId], references: [id])
   mediaId   String   @unique
   media     Media    @relation(fields: [mediaId], references: [id])
+  Guess     Guess[]
 
   @@map("location")
+}
+
+model Guess {
+  id           String   @id @default(uuid())
+  distance     Int
+  distanceText String
+  createdAt    DateTime @default(now())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  locationId   String
+  location     Location @relation(fields: [locationId], references: [id])
+
+  @@map("guess")
 }
