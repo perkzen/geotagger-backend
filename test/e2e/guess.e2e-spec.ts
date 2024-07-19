@@ -118,5 +118,18 @@ describe('Guess (e2e)', () => {
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('User already tried to guess this location');
     });
+    it('should return 201 if location is guessed successfully', async () => {
+      const { body } = await createNewLocation(otherAccessToken);
+      const response = await testingApp.httpServer
+        .request()
+        .post(`/locations/guess/${body.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ lat: 51.5074, lng: 0.1278 });
+
+      expect(response.status).toBe(201);
+      expect(response.body.id).toBeDefined();
+      expect(response.body.distance).toBeDefined();
+      expect(response.body.distanceText).toBeDefined();
+    });
   });
 });
