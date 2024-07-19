@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsLatitude, IsLongitude, Min } from 'class-validator';
+import { IsLatitude, IsLongitude } from 'class-validator';
 
 export class CreateGuessDto {
   @ApiProperty()

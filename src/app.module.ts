@@ -7,11 +7,11 @@ import { PrismaModule } from '@app/modules/db/prisma.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
+import { GoogleModule } from './modules/google/google.module';
+import { GuessModule } from './modules/guess/guess.module';
 import { LocationsModule } from './modules/locations/locations.module';
 import { MediaModule } from './modules/media/media.module';
 import { UsersModule } from './modules/users/users.module';
-import { GuessModule } from './modules/guess/guess.module';
-import { GoogleModule } from './modules/google/google.module';
 
 @Module({
   imports: [
