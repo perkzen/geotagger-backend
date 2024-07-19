@@ -51,12 +51,18 @@ export class LocationsService {
 
   async listByUser(userId: string, query: PaginationQuery) {
     const [data, total] = await this.locationsRepository.findByUserIdWithPagination(userId, query);
-    return { data, meta: { total, take: query.take, skip: query.skip } };
+
+    const locations = await Promise.all(data.map(async (location) => this.toLocationDto(location, location.media.key)));
+
+    return { data: locations, meta: { total, take: query.take, skip: query.skip } };
   }
 
   async list(query: PaginationQuery) {
     const [data, total] = await this.locationsRepository.findManyWithPagination(query);
-    return { data, meta: { total, take: query.take, skip: query.skip } };
+
+    const locations = await Promise.all(data.map(async (location) => this.toLocationDto(location, location.media.key)));
+
+    return { data: locations, meta: { total, take: query.take, skip: query.skip } };
   }
 
   async delete(id: string, userId: string) {
