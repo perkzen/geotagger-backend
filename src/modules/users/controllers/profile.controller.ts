@@ -5,7 +5,6 @@ import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { User } from '@app/modules/auth/decorators/user.decorator';
 import { UploadedImage } from '@app/modules/media/decorators/uploaded-image.decorator';
 import { ImageDto } from '@app/modules/media/dtos/image.dto';
-import { MediaInterceptor } from '@app/modules/media/interceptors/media.interceptor';
 import { UserProfileDto } from '@app/modules/users/dtos/user-profile.dto';
 import { UsersService } from '@app/modules/users/services/users.service';
 
