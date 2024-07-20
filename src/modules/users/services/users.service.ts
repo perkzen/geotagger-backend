@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
 import { MediaService } from '@app/modules/media/services/media.service';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
@@ -40,8 +40,8 @@ export class UsersService {
     return this.usersRepository.findByEmail(email);
   }
 
-  async findById(id: string) {
-    const user = await this.usersRepository.findOne(id);
+  async findById(id: string, include?: Prisma.UserInclude) {
+    const user = await this.usersRepository.findOne(id, include);
 
     if (!user) {
       throw new UserNotFoundException();
@@ -52,19 +52,6 @@ export class UsersService {
 
   async updatePassword(userId: string, newPassword: string) {
     await this.usersRepository.update(userId, { password: newPassword });
-  }
-
-  async getProfile(userId: string): Promise<UserProfileDto> {
-    const user = await this.usersRepository.findOne(userId, { media: true });
-
-    if (!user) {
-      throw new UserNotFoundException();
-    }
-
-    return {
-      ...user,
-      imageUrl: user.media ? await this.mediaService.getMediaUrl(user.media.key) : user.imageUrl,
-    };
   }
 
   async updateProfileImage(userId: string, image?: Express.Multer.File): Promise<UserProfileDto> {
@@ -85,6 +72,6 @@ export class UsersService {
       await this.usersRepository.updateMedia(userId, media.id);
     }
 
-    return this.getProfile(userId);
+    return this.findById(userId, { media: true });
   }
 }

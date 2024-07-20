@@ -85,7 +85,7 @@ describe('User (e2e)', () => {
         .attach('image', join(__dirname, '..', 'files', 'test.jpeg'))
         .expect(200);
 
-      expect(res.body.imageUrl).toBe('https://example.com/image.jpg');
+      expect(res.body.media.keyUrl).toBe('https://example.com/image.jpg');
       expect(res.body.firstname).toBe(createUserDto.firstname);
       expect(res.body.lastname).toBe(createUserDto.lastname);
       expect(res.body.email).toBe(createUserDto.email);

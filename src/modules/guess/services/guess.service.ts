@@ -16,7 +16,6 @@ export class GuessService {
     private readonly guessRepository: GuessRepository,
     private readonly googleMapsService: GoogleMapsService,
     private readonly locationsService: LocationsService,
-    private readonly mediaService: MediaService,
   ) {}
 
   async create(data: CreateGuessDto, userId: string, locationId: string) {
@@ -51,15 +50,8 @@ export class GuessService {
   async getUserBestScores(userId: string, query: PaginationQuery) {
     const [data, total] = await this.guessRepository.findByUserId(userId, query);
 
-    const guessesWithImage = await Promise.all(
-      data.map(async (guess) => ({
-        ...guess,
-        imageUrl: await this.mediaService.getMediaUrl(guess.location.media.key),
-      })),
-    );
-
     return {
-      data: guessesWithImage,
+      data,
       meta: {
         total,
         take: query.take,

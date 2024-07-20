@@ -133,6 +133,9 @@ export class LocationsRepository {
         id,
       },
       data,
+      include: {
+        media: true,
+      },
     });
   }
 }
