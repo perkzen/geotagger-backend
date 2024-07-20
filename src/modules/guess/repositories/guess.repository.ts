@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Location, Media, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PaginationQuery } from '@app/common/pagination/pagination.query';
 import { PrismaService } from '@app/modules/db/prisma.service';
 

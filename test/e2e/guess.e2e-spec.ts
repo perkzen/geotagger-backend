@@ -1,6 +1,5 @@
 import { join } from 'path';
 import { faker } from '@faker-js/faker';
-import { DEFAULT_SKIP, DEFAULT_TAKE } from '@app/common/pagination/pagination.constants';
 import { AuthService } from '@app/modules/auth/services/auth.service';
 import { AWS_S3_CLIENT } from '@app/modules/aws/aws.constants';
 import { AwsS3Service } from '@app/modules/aws/s3/aws-s3.service';
