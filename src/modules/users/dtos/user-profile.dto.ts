@@ -1,11 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Provider } from '@prisma/client';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { IsEnum, IsUrl } from 'class-validator';
+import { MediaDto } from '@app/modules/media/dtos/media.dto';
 import { UserDto } from '@app/modules/users/dtos/user.dto';
 
 export class UserProfileDto extends UserDto {
-  @ApiProperty()
+  /**
+   * The user's profile image URL provider by social login.
+   */
+  @ApiProperty({ description: "The user's profile image URL provider by social login." })
   @IsUrl()
   @Expose()
   imageUrl: string | null;
@@ -16,4 +20,9 @@ export class UserProfileDto extends UserDto {
   @IsEnum(Provider)
   @Expose()
   provider: Provider;
+
+  @ApiProperty()
+  @Expose()
+  @Type(() => MediaDto)
+  media: MediaDto | null;
 }

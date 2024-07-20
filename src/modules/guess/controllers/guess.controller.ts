@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiOkPaginatedResponse } from '@app/common/decorators/api-ok-paginated-response.decorator';
 import { PaginationQuery } from '@app/common/pagination/pagination.query';
@@ -9,6 +9,7 @@ import { CreateGuessDto } from '@app/modules/guess/dtos/create-guess.dto';
 import { GuessDto } from '@app/modules/guess/dtos/guess.dto';
 import { UserBestScoresDto } from '@app/modules/guess/dtos/user-best-scores.dto';
 import { GuessService } from '@app/modules/guess/services/guess.service';
+import { MediaInterceptor } from '@app/modules/media/interceptors/media.interceptor';
 
 @ApiTags('Location')
 @Controller('locations')
@@ -26,6 +27,7 @@ export class GuessController {
   }
 
   @Get('me/best-scores')
+  @UseInterceptors(MediaInterceptor)
   @ApiTags('Guess')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user best scores' })

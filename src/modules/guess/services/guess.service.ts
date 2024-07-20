@@ -6,7 +6,6 @@ import { CannotGuessOwnLocationException } from '@app/modules/guess/exceptions/c
 import { UserAlreadyGuessedException } from '@app/modules/guess/exceptions/user-already-guessed.exception';
 import { GuessRepository } from '@app/modules/guess/repositories/guess.repository';
 import { LocationsService } from '@app/modules/locations/services/locations.service';
-import { MediaService } from '@app/modules/media/services/media.service';
 
 @Injectable()
 export class GuessService {
@@ -16,7 +15,6 @@ export class GuessService {
     private readonly guessRepository: GuessRepository,
     private readonly googleMapsService: GoogleMapsService,
     private readonly locationsService: LocationsService,
-    private readonly mediaService: MediaService,
   ) {}
 
   async create(data: CreateGuessDto, userId: string, locationId: string) {
@@ -51,15 +49,8 @@ export class GuessService {
   async getUserBestScores(userId: string, query: PaginationQuery) {
     const [data, total] = await this.guessRepository.findByUserId(userId, query);
 
-    const guessesWithImage = await Promise.all(
-      data.map(async (guess) => ({
-        ...guess,
-        imageUrl: await this.mediaService.getMediaUrl(guess.location.media.key),
-      })),
-    );
-
     return {
-      data: guessesWithImage,
+      data,
       meta: {
         total,
         take: query.take,

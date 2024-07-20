@@ -170,8 +170,8 @@ describe('Guess (e2e)', () => {
       expect(res.body.data).toBeDefined();
       expect(res.body.data).toHaveLength(1);
       expect(res.body.data[0].distance).toBeDefined();
-      expect(res.body.data[0].locationId).toBeDefined();
-      expect(res.body.data[0].imageUrl).toBeDefined();
+      expect(res.body.data[0].location.id).toBeDefined();
+      expect(res.body.data[0].location.media.keyUrl).toBeDefined();
       expect(res.body.meta).toBeDefined();
     });
   });

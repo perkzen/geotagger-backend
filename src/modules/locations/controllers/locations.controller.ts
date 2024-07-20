@@ -12,8 +12,10 @@ import { LocationDto } from '@app/modules/locations/dtos/location.dto';
 import { UpdateLocationDto, UpdateLocationSwaggerDto } from '@app/modules/locations/dtos/update-location.dto';
 import { LocationsService } from '@app/modules/locations/services/locations.service';
 import { UploadedImage } from '@app/modules/media/decorators/uploaded-image.decorator';
+import { MediaInterceptor } from '@app/modules/media/interceptors/media.interceptor';
 
 @ApiTags('Location')
+@UseInterceptors(MediaInterceptor)
 @Controller('locations')
 export class LocationsController {
   constructor(private readonly locationsService: LocationsService) {}

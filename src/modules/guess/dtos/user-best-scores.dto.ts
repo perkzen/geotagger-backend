@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose, Transform } from 'class-transformer';
+import { Expose } from 'class-transformer';
+import { MediaDto } from '@app/modules/media/dtos/media.dto';
 
 export class UserBestScoresDto {
   @ApiProperty()
@@ -9,13 +10,6 @@ export class UserBestScoresDto {
   distance: string;
 
   @ApiProperty()
-  @Expose({
-    name: 'location',
-  })
-  @Transform(({ value }) => value.id)
-  locationId: string;
-
-  @ApiProperty()
   @Expose()
-  imageUrl: string;
+  location: { id: string; media: MediaDto };
 }

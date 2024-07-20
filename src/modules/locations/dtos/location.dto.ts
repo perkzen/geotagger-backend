@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { IsLatitude, IsLongitude, IsString, IsUrl } from 'class-validator';
+import { MediaDto } from '@app/modules/media/dtos/media.dto';
 
 export class LocationDto {
   @ApiProperty()
@@ -32,4 +33,9 @@ export class LocationDto {
   @IsLongitude()
   @Expose()
   lng: number;
+
+  @ApiProperty()
+  @Expose()
+  @Type(() => MediaDto)
+  media: MediaDto;
 }
