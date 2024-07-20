@@ -8,6 +8,7 @@ import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dt
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
 import { S3ClientMock } from '@test/mocks/s3-client.mock';
 import { createUser, getAccessToken } from '@test/utils/auth';
+import { createLocation } from '@test/utils/location';
 
 describe('Locations (e2e)', () => {
   let testingApp: TestAppBootstrap;
@@ -15,7 +16,7 @@ describe('Locations (e2e)', () => {
   let accessToken: string;
   let otherAccessToken: string;
 
-  const createUserDto: CreateLocalUserDto = {
+  const userDto: CreateLocalUserDto = {
     email: faker.internet.email(),
     password: 'Password123!',
     firstname: faker.person.firstName(),
@@ -39,15 +40,8 @@ describe('Locations (e2e)', () => {
     lng: 0.1278,
   };
 
-  const createLocation = (token: string, file: string) => {
-    return testingApp.httpServer
-      .request()
-      .post('/locations')
-      .set('Authorization', `Bearer ${token}`)
-      .field('address', location.address)
-      .field('lat', location.lat.toString())
-      .field('lng', location.lng.toString())
-      .attach('image', file);
+  const createNewLocation = (token: string, file: string) => {
+    return createLocation(testingApp, token, location, file);
   };
 
   beforeAll(async () => {
@@ -61,8 +55,8 @@ describe('Locations (e2e)', () => {
 
     jest.spyOn(awsS3Service, 'getObjectUrl').mockImplementation(async () => imageUrl);
 
-    await createUser(authService, createUserDto);
-    accessToken = await getAccessToken(authService, { email: createUserDto.email, password: createUserDto.password });
+    await createUser(authService, userDto);
+    accessToken = await getAccessToken(authService, { email: userDto.email, password: userDto.password });
 
     await createUser(authService, otherUserDto);
     otherAccessToken = await getAccessToken(authService, {
@@ -82,6 +76,7 @@ describe('Locations (e2e)', () => {
 
   it('should be defined', () => {
     expect(accessToken).toBeDefined();
+    expect(otherAccessToken).toBeDefined();
   });
 
   describe('POST /locations', () => {
@@ -89,7 +84,7 @@ describe('Locations (e2e)', () => {
       await testingApp.httpServer.request().post('/locations').expect(401);
     });
     it('should create location', async () => {
-      const res = await createLocation(accessToken, imageFile);
+      const res = await createNewLocation(accessToken, imageFile);
 
       expect(res.status).toBe(201);
       expect(res.body.imageUrl).toBe(imageUrl);
@@ -110,7 +105,7 @@ describe('Locations (e2e)', () => {
       expect(res.body.error).toBe('File is required');
     });
     it('should return 400 if invalid file type is provided', async () => {
-      const res = await createLocation(accessToken, textFile);
+      const res = await createNewLocation(accessToken, textFile);
 
       expect(res.status).toBe(400);
       expect(res.body.error).toBe('Validation failed (expected type is .(png|jpeg|jpg))');
@@ -141,7 +136,7 @@ describe('Locations (e2e)', () => {
       expect(res.body.error).toBe('Location with id 1 not found');
     });
     it('should return location', async () => {
-      const res = await createLocation(accessToken, imageFile);
+      const res = await createNewLocation(accessToken, imageFile);
 
       const locationId = res.body.id;
 
@@ -165,7 +160,7 @@ describe('Locations (e2e)', () => {
       await testingApp.httpServer.request().get('/locations').expect(401);
     });
     it('should return locations', async () => {
-      await createLocation(accessToken, imageFile);
+      await createNewLocation(accessToken, imageFile);
 
       const locationsRes = await testingApp.httpServer
         .request()
@@ -188,7 +183,7 @@ describe('Locations (e2e)', () => {
       await testingApp.httpServer.request().get('/locations/me').expect(401);
     });
     it('should return users locations', async () => {
-      await createLocation(accessToken, imageFile);
+      await createNewLocation(accessToken, imageFile);
 
       const locationsRes = await testingApp.httpServer
         .request()
@@ -233,7 +228,7 @@ describe('Locations (e2e)', () => {
         });
     });
     it('should return 403 if user is not owner of location', async () => {
-      const res = await createLocation(otherAccessToken, imageFile);
+      const res = await createNewLocation(otherAccessToken, imageFile);
 
       const locationId = res.body.id;
 
@@ -249,7 +244,7 @@ describe('Locations (e2e)', () => {
         });
     });
     it('should delete location', async () => {
-      const res = await createLocation(accessToken, imageFile);
+      const res = await createNewLocation(accessToken, imageFile);
 
       const locationId = res.body.id;
 
@@ -289,7 +284,7 @@ describe('Locations (e2e)', () => {
         });
     });
     it('should return 403 if user is not owner of location', async () => {
-      const res = await createLocation(otherAccessToken, imageFile);
+      const res = await createNewLocation(otherAccessToken, imageFile);
       const locationId = res.body.id;
 
       expect(locationId).toBeDefined();
@@ -308,7 +303,7 @@ describe('Locations (e2e)', () => {
         });
     });
     it('should update location', async () => {
-      const res = await createLocation(accessToken, imageFile);
+      const res = await createNewLocation(accessToken, imageFile);
 
       const locationId = res.body.id;
 

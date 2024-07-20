@@ -8,5 +8,6 @@ import { MediaModule } from '@app/modules/media/media.module';
   imports: [MediaModule],
   controllers: [LocationsController],
   providers: [LocationsService, LocationsRepository],
+  exports: [LocationsService],
 })
 export class LocationsModule {}

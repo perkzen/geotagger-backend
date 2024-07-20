@@ -1,7 +1,7 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { BaseSetup } from '@app/config/setups/base.setup';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { isProdEnv } from '@app/common/utils/env-check';
+import { BaseSetup } from '@app/config/setups/base.setup';
 
 export class SwaggerSetup extends BaseSetup {
   constructor(readonly app: NestExpressApplication) {

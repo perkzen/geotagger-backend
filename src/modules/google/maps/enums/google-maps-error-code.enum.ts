@@ -1,0 +1,3 @@
+export enum GoogleMapsErrorCode {
+  CANNOT_CALCULATE_DISTANCE = 'CANNOT_CALCULATE_DISTANCE',
+}

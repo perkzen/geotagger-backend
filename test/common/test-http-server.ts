@@ -8,7 +8,9 @@ export class TestHttpServer {
   httpServer: NestExpressApplication;
 
   constructor(private readonly testingModule: TestingModule) {
-    this.httpServer = this.testingModule.createNestApplication<NestExpressApplication>();
+    this.httpServer = this.testingModule.createNestApplication<NestExpressApplication>({
+      logger: false,
+    });
   }
 
   static async createHttpServer(testingModule: TestingModule): Promise<TestHttpServer> {

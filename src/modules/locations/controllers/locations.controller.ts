@@ -12,7 +12,7 @@ import { UpdateLocationDto, UpdateLocationSwaggerDto } from '@app/modules/locati
 import { LocationsService } from '@app/modules/locations/services/locations.service';
 import { UploadedImage } from '@app/modules/media/decorators/uploaded-image.decorator';
 
-@ApiTags('Locations')
+@ApiTags('Location')
 @Controller('locations')
 export class LocationsController {
   constructor(private readonly locationsService: LocationsService) {}

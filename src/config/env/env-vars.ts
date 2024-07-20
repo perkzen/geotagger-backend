@@ -18,6 +18,7 @@ export const environmentVariablesSchema = z.object({
   AWS_S3_BUCKET_NAME: z.string().optional(),
   AWS_ACCESS_KEY_ID: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),
+  GOOGLE_MAPS_API_KEY: z.string(),
 });
 
 export type EnvironmentVariables = z.infer<typeof environmentVariablesSchema>;
