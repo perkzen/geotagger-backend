@@ -3,9 +3,11 @@ import { faker } from '@faker-js/faker';
 import { AuthService } from '@app/modules/auth/services/auth.service';
 import { AWS_S3_CLIENT } from '@app/modules/aws/aws.constants';
 import { AwsS3Service } from '@app/modules/aws/s3/aws-s3.service';
+import { GoogleMapsService } from '@app/modules/google/maps/google-maps.service';
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
+import { GoogleMapsServiceMock } from '@test/mocks/google-maps-service.mock';
 import { S3ClientMock } from '@test/mocks/s3-client.mock';
 import { createUser, getAccessToken } from '@test/utils/auth';
 import { createLocation } from '@test/utils/location';
@@ -46,7 +48,12 @@ describe('Guess (e2e)', () => {
   beforeAll(async () => {
     testingApp = new TestAppBootstrap();
     await testingApp.compile({
-      overrideFunc: (module) => module.overrideProvider(AWS_S3_CLIENT).useClass(S3ClientMock),
+      overrideFunc: (module) =>
+        module
+          .overrideProvider(GoogleMapsService)
+          .useClass(GoogleMapsServiceMock)
+          .overrideProvider(AWS_S3_CLIENT)
+          .useClass(S3ClientMock),
     });
 
     const authService = testingApp.app.get(AuthService);
@@ -68,10 +75,6 @@ describe('Guess (e2e)', () => {
     await testingApp.close();
     jest.clearAllMocks();
   });
-
-  // afterEach(async () => {
-  //   await testingApp.db.location.deleteMany();
-  // });
 
   it('should be defined', () => {
     expect(accessToken).toBeDefined();

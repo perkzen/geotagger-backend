@@ -1,11 +1,13 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { DistanceDto } from '@app/modules/google/maps/dtos/distance.dto';
+import { CannotCalculateDistanceException } from '@app/modules/google/maps/exceptions/cannot-calculate-distance.exception';
 
 @Injectable()
 export class GoogleMapsService {
+  private readonly logger = new Logger(GoogleMapsService.name);
   private readonly DISTANCE_MATRIX_API_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json';
 
   constructor(
@@ -27,6 +29,11 @@ export class GoogleMapsService {
         key: this.configService.getOrThrow('GOOGLE_MAPS_API_KEY'),
       },
     });
+
+    if (res.data.rows[0].elements[0].status !== 'OK') {
+      this.logger.error('Cannot calculate distance', { origin, destination });
+      throw new CannotCalculateDistanceException();
+    }
 
     return serializeToDto(DistanceDto, res.data) as unknown as DistanceDto;
   }
