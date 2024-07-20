@@ -19,6 +19,11 @@ export class MediaInterceptor implements NestInterceptor {
     );
   }
 
+  /**
+   * Recursively process object and replace to signed url if media key is present
+   * @param obj
+   * @private
+   */
   private async processObject(obj: any): Promise<any> {
     if (typeof obj !== 'object' || obj === null) {
       return obj;
