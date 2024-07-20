@@ -1,5 +1,6 @@
 import { join } from 'path';
 import { faker } from '@faker-js/faker';
+import { DEFAULT_SKIP, DEFAULT_TAKE } from '@app/common/pagination/pagination.constants';
 import { AuthService } from '@app/modules/auth/services/auth.service';
 import { AWS_S3_CLIENT } from '@app/modules/aws/aws.constants';
 import { AwsS3Service } from '@app/modules/aws/s3/aws-s3.service';
@@ -10,6 +11,7 @@ import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
 import { GoogleMapsServiceMock } from '@test/mocks/google-maps-service.mock';
 import { S3ClientMock } from '@test/mocks/s3-client.mock';
 import { createUser, getAccessToken } from '@test/utils/auth';
+import { createGuess } from '@test/utils/guess';
 import { createLocation } from '@test/utils/location';
 
 describe('Guess (e2e)', () => {
@@ -76,6 +78,10 @@ describe('Guess (e2e)', () => {
     jest.clearAllMocks();
   });
 
+  afterEach(async () => {
+    await testingApp.db.guess.deleteMany();
+  });
+
   it('should be defined', () => {
     expect(accessToken).toBeDefined();
     expect(otherAccessToken).toBeDefined();
@@ -133,6 +139,41 @@ describe('Guess (e2e)', () => {
       expect(response.body.id).toBeDefined();
       expect(response.body.distance).toBeDefined();
       expect(response.body.distanceText).toBeDefined();
+    });
+  });
+  describe('GET /locations/me/best-scores', () => {
+    it('should return 401 if user is not authenticated', async () => {
+      const response = await testingApp.httpServer.request().get('/locations/me/best-scores');
+      expect(response.status).toBe(401);
+    });
+    it("should return empty array for user's best scores", async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .get('/locations/me/best-scores?take=10&skip=0')
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toBeDefined();
+      expect(res.body.data).toHaveLength(0);
+      expect(res.body.meta).toBeDefined();
+      expect(res.body.meta.total).toBe(0);
+    });
+    it('should return user best scores', async () => {
+      const { body } = await createNewLocation(otherAccessToken);
+      await createGuess(testingApp, accessToken, body.id);
+
+      const res = await testingApp.httpServer
+        .request()
+        .get('/locations/me/best-scores?take=10&skip=0')
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toBeDefined();
+      expect(res.body.data).toHaveLength(1);
+      expect(res.body.data[0].distance).toBeDefined();
+      expect(res.body.data[0].locationId).toBeDefined();
+      expect(res.body.data[0].imageUrl).toBeDefined();
+      expect(res.body.meta).toBeDefined();
     });
   });
 });
