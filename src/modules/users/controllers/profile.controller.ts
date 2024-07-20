@@ -14,7 +14,6 @@ export class ProfileController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @UseInterceptors(MediaInterceptor)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user profile' })
   @ApiOkResponse({ type: UserProfileDto })
