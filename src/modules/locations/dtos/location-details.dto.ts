@@ -1,35 +1,33 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsLatitude, IsLongitude, IsString, IsUrl } from 'class-validator';
+import { IsArray } from 'class-validator';
+import { LocationDto } from '@app/modules/locations/dtos/location.dto';
 
-export class LocationDto {
+class GuessDto {
   @ApiProperty()
-  @IsString()
   @Expose()
   id: string;
 
   @ApiProperty()
-  @IsString()
   @Expose()
-  userId: string;
+  displayName: string;
 
   @ApiProperty()
-  @IsUrl()
   @Expose()
   imageUrl: string;
 
   @ApiProperty()
-  @IsString()
   @Expose()
-  address: string;
+  distance: string;
 
   @ApiProperty()
-  @IsLatitude()
   @Expose()
-  lat: number;
+  createdAt: Date;
+}
 
+export class LocationDetailsDto extends LocationDto {
   @ApiProperty()
-  @IsLongitude()
   @Expose()
-  lng: number;
+  @IsArray()
+  guesses: GuessDto[];
 }

@@ -1,12 +1,13 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
+import { ApiOkPaginatedResponse } from '@app/common/decorators/api-ok-paginated-response.decorator';
 import { PaginationQuery } from '@app/common/pagination/pagination.query';
 import { serializeToPaginationDto } from '@app/common/pagination/serializte-to-pagniated-dto';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { User } from '@app/modules/auth/decorators/user.decorator';
 import { CreateLocationDto, CreateLocationSwaggerDto } from '@app/modules/locations/dtos/create-location.dto';
+import { LocationDetailsDto } from '@app/modules/locations/dtos/location-details.dto';
 import { LocationDto } from '@app/modules/locations/dtos/location.dto';
 import { UpdateLocationDto, UpdateLocationSwaggerDto } from '@app/modules/locations/dtos/update-location.dto';
 import { LocationsService } from '@app/modules/locations/services/locations.service';
@@ -37,7 +38,7 @@ export class LocationsController {
   @Get()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'List locations with pagination' })
-  @ApiPaginatedResponse(LocationDto)
+  @ApiOkPaginatedResponse(LocationDto)
   async list(@Query() query: PaginationQuery) {
     const data = await this.locationsService.list(query);
     return serializeToPaginationDto(LocationDto, data);
@@ -46,7 +47,7 @@ export class LocationsController {
   @Get('me')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find users locations' })
-  @ApiPaginatedResponse(LocationDto)
+  @ApiOkPaginatedResponse(LocationDto)
   async getByUser(@Query() query: PaginationQuery, @User('userId') userId: string) {
     const data = await this.locationsService.listByUser(userId, query);
     return serializeToPaginationDto(LocationDto, data);
@@ -57,8 +58,8 @@ export class LocationsController {
   @ApiOperation({ summary: 'Find location by id' })
   @ApiCreatedResponse({ type: LocationDto })
   async getById(@Param('id') id: string) {
-    const location = this.locationsService.findById(id);
-    return serializeToDto(LocationDto, location);
+    const location = await this.locationsService.getLocationDetails(id);
+    return serializeToDto(LocationDetailsDto, location);
   }
 
   @Delete(':id')

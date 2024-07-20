@@ -3,11 +3,14 @@ import { faker } from '@faker-js/faker';
 import { AuthService } from '@app/modules/auth/services/auth.service';
 import { AWS_S3_CLIENT } from '@app/modules/aws/aws.constants';
 import { AwsS3Service } from '@app/modules/aws/s3/aws-s3.service';
+import { GoogleMapsService } from '@app/modules/google/maps/google-maps.service';
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
+import { GoogleMapsServiceMock } from '@test/mocks/google-maps-service.mock';
 import { S3ClientMock } from '@test/mocks/s3-client.mock';
 import { createUser, getAccessToken } from '@test/utils/auth';
+import { createGuess } from '@test/utils/guess';
 import { createLocation } from '@test/utils/location';
 
 describe('Locations (e2e)', () => {
@@ -47,7 +50,12 @@ describe('Locations (e2e)', () => {
   beforeAll(async () => {
     testingApp = new TestAppBootstrap();
     await testingApp.compile({
-      overrideFunc: (module) => module.overrideProvider(AWS_S3_CLIENT).useClass(S3ClientMock),
+      overrideFunc: (module) =>
+        module
+          .overrideProvider(AWS_S3_CLIENT)
+          .useClass(S3ClientMock)
+          .overrideProvider(GoogleMapsService)
+          .useClass(GoogleMapsServiceMock),
     });
 
     const authService = testingApp.app.get(AuthService);
@@ -71,6 +79,7 @@ describe('Locations (e2e)', () => {
   });
 
   afterEach(async () => {
+    await testingApp.db.guess.deleteMany();
     await testingApp.db.location.deleteMany();
   });
 
@@ -136,22 +145,33 @@ describe('Locations (e2e)', () => {
       expect(res.body.error).toBe('Location with id 1 not found');
     });
     it('should return location', async () => {
-      const res = await createNewLocation(accessToken, imageFile);
+      const getLocation = () =>
+        testingApp.httpServer
+          .request()
+          .get(`/locations/${locationId}`)
+          .set('Authorization', `Bearer ${accessToken}`)
+          .expect(200);
 
-      const locationId = res.body.id;
+      const { body } = await createNewLocation(accessToken, imageFile);
+
+      const locationId = body.id;
 
       expect(locationId).toBeDefined();
 
-      const locationRes = await testingApp.httpServer
-        .request()
-        .get(`/locations/${locationId}`)
-        .set('Authorization', `Bearer ${accessToken}`)
-        .expect(200);
+      let res = await getLocation();
 
-      expect(locationRes.body.imageUrl).toBe(imageUrl);
-      expect(locationRes.body.lat).toBe(location.lat);
-      expect(locationRes.body.lng).toBe(location.lng);
-      expect(locationRes.body.address).toBe(location.address);
+      expect(res.body.imageUrl).toBe(imageUrl);
+      expect(res.body.lat).toBe(location.lat);
+      expect(res.body.lng).toBe(location.lng);
+      expect(res.body.address).toBe(location.address);
+      expect(res.body.id).toBe(locationId);
+      expect(res.body.guesses).toHaveLength(0);
+
+      await createGuess(testingApp, otherAccessToken, locationId);
+
+      res = await getLocation();
+
+      expect(res.body.guesses).toHaveLength(1);
     });
   });
 

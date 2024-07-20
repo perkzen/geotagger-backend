@@ -18,8 +18,8 @@ model User {
   provider  Provider   @default(local)
   mediaId   String?    @unique
   media     Media?     @relation(fields: [mediaId], references: [id])
-  Location  Location[]
-  Guess     Guess[]
+  locations Location[]
+  guesses   Guess[]
 
   @@map("users")
 }
@@ -36,8 +36,8 @@ model Media {
   key       String     @unique
   filename  String
   createdAt DateTime   @default(now())
-  Locations Location[]
-  Users     User[]
+  locations Location[]
+  users     User[]
 
   @@map("media")
 }
@@ -52,7 +52,7 @@ model Location {
   user      User     @relation(fields: [userId], references: [id])
   mediaId   String   @unique
   media     Media    @relation(fields: [mediaId], references: [id])
-  Guess     Guess[]
+  guesses   Guess[]
 
   @@map("location")
 }

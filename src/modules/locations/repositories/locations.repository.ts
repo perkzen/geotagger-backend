@@ -29,6 +29,45 @@ export class LocationsRepository {
     });
   }
 
+  async findOneWithDetails(id: string) {
+    return this.location.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        address: true,
+        lng: true,
+        lat: true,
+        userId: true,
+        media: {
+          select: {
+            key: true,
+          },
+        },
+        guesses: {
+          select: {
+            id: true,
+            distanceText: true,
+            createdAt: true,
+            user: {
+              select: {
+                firstname: true,
+                lastname: true,
+                imageUrl: true,
+                media: {
+                  select: {
+                    key: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
   async findByUserIdWithPagination(userId: string, { take, skip }: PaginationQuery) {
     const query: Prisma.LocationFindManyArgs = {
       where: {

@@ -4,6 +4,7 @@ import { CannotAccessResourceException } from '@app/common/exceptions/cannot-acc
 import { PaginationQuery } from '@app/common/pagination/pagination.query';
 import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
+import { LocationDetailsDto } from '@app/modules/locations/dtos/location-details.dto';
 import { LocationDto } from '@app/modules/locations/dtos/location.dto';
 import { UpdateLocationDto } from '@app/modules/locations/dtos/update-location.dto';
 import { CannotCreateLocationException } from '@app/modules/locations/exceptions/cannot-create-location.exception';
@@ -26,6 +27,36 @@ export class LocationsService {
     return { ...location, imageUrl };
   }
 
+  private async toLocationDetailsDto(
+    location: Awaited<ReturnType<typeof this.locationsRepository.findOneWithDetails>>,
+  ): Promise<LocationDetailsDto> {
+    const imageUrl = await this.mediaService.getMediaUrl(location.media.key);
+
+    const mediaKeys = new Set(
+      location.guesses.filter((guess) => guess.user.media).map((guess) => guess.user.media.key),
+    );
+
+    const mediaUrls = await Promise.all(Array.from(mediaKeys).map((key) => this.mediaService.getMediaUrl(key)));
+    const mediaUrlMap = new Map(Array.from(mediaKeys).map((key, index) => [key, mediaUrls[index]]));
+
+    const guesses = await Promise.all(
+      location.guesses.map((guess) => {
+        const { user, id, distanceText, createdAt } = guess;
+        const imageUrl = user.media ? mediaUrlMap.get(user.media.key) : user.imageUrl;
+
+        return {
+          id,
+          displayName: `${user.firstname} ${user.lastname}`,
+          imageUrl,
+          distance: distanceText,
+          createdAt,
+        };
+      }),
+    );
+
+    return { ...location, imageUrl, guesses };
+  }
+
   async create(userId: string, dto: CreateLocationDto, image: Express.Multer.File) {
     const media = await this.mediaService.uploadMedia(image, BucketPath.LOCATIONS_IMAGES);
 
@@ -37,6 +68,16 @@ export class LocationsService {
       this.logger.log('Error creating location:', { userId, dto, error });
       throw new CannotCreateLocationException();
     }
+  }
+
+  async getLocationDetails(id: string) {
+    const location = await this.locationsRepository.findOneWithDetails(id);
+
+    if (!location) {
+      throw new LocationNotFoundException(id);
+    }
+
+    return this.toLocationDetailsDto(location);
   }
 
   async findById(id: string) {
