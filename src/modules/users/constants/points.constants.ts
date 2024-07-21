@@ -1,6 +1,10 @@
 /**
+ * Default number of points user gets when he registers
+ */
+export const DEFAULT_POINTS = 10;
+
+/**
  * Number of points user gets when he uploads a new location
- * it's also the same number that user gets after the registration
  *
  */
 export const POINTS_PER_LOCATION_UPLOAD = 10;
