@@ -22,7 +22,7 @@ export class TestHttpServer {
 
   request(): TestAgent<SuperTestTest> {
     if (!this.httpServer) {
-      throw new Error('HttpServer not initialized');
+      throw new Error('Http server not initialized');
     }
 
     return request(this.httpServer.getHttpServer());

@@ -3,9 +3,9 @@ import { PaginationQuery } from '@app/common/pagination/pagination.query';
 import { GoogleMapsService } from '@app/modules/google/maps/google-maps.service';
 import { CreateGuessDto } from '@app/modules/guess/dtos/create-guess.dto';
 import { CannotGuessOwnLocationException } from '@app/modules/guess/exceptions/cannot-guess-own-location.exception';
-import { UserAlreadyGuessedException } from '@app/modules/guess/exceptions/user-already-guessed.exception';
 import { GuessRepository } from '@app/modules/guess/repositories/guess.repository';
 import { LocationsService } from '@app/modules/locations/services/locations.service';
+import { PointsService } from '@app/modules/users/services/points.service';
 
 @Injectable()
 export class GuessService {
@@ -15,6 +15,7 @@ export class GuessService {
     private readonly guessRepository: GuessRepository,
     private readonly googleMapsService: GoogleMapsService,
     private readonly locationsService: LocationsService,
+    private readonly pointsService: PointsService,
   ) {}
 
   async create(data: CreateGuessDto, userId: string, locationId: string) {
@@ -25,10 +26,9 @@ export class GuessService {
       throw new CannotGuessOwnLocationException();
     }
 
-    if (await this.guessRepository.exists(userId, locationId)) {
-      this.logger.error(`User ${userId} already guessed location ${locationId}`);
-      throw new UserAlreadyGuessedException();
-    }
+    const count = await this.guessRepository.guessCount(userId, locationId);
+
+    await this.pointsService.decrementPoints(userId, count);
 
     const { distance } = await this.googleMapsService.calculateDistance(
       {

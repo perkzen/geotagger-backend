@@ -3,6 +3,7 @@ import { faker } from '@faker-js/faker';
 import { AuthService } from '@app/modules/auth/services/auth.service';
 import { AWS_S3_CLIENT } from '@app/modules/aws/aws.constants';
 import { AwsS3Service } from '@app/modules/aws/s3/aws-s3.service';
+import { POINTS_PER_LOCATION_UPLOAD } from '@app/modules/users/constants/points.constants';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
 import { S3ClientMock } from '@test/mocks/s3-client.mock';
@@ -59,6 +60,7 @@ describe('User (e2e)', () => {
       expect(res.body.firstname).toBe(createUserDto.firstname);
       expect(res.body.lastname).toBe(createUserDto.lastname);
       expect(res.body.email).toBe(createUserDto.email);
+      expect(res.body.points).toBe(POINTS_PER_LOCATION_UPLOAD);
     });
   });
 
