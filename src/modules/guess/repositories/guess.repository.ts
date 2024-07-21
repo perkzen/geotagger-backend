@@ -26,12 +26,19 @@ export class GuessRepository {
     });
   }
 
+  /**
+   * Find users best guesses based on distance
+   * @param userId
+   * @param take
+   * @param skip
+   */
   async findByUserId(userId: string, { take, skip }: PaginationQuery) {
     const query: Prisma.GuessFindManyArgs = {
       where: {
         userId,
       },
       select: {
+        id: true,
         distanceText: true,
         location: {
           select: {
@@ -47,6 +54,7 @@ export class GuessRepository {
       orderBy: {
         distance: 'asc',
       },
+      distinct: ['id'],
       take,
       skip,
     };
@@ -55,5 +63,19 @@ export class GuessRepository {
       this.guess.findMany(query),
       this.guess.count({ where: query.where }),
     ]) as unknown as Promise<[{ distanceText: string; location: { id: string; media: { key: string } } }[], number]>;
+  }
+
+  /**
+   * Count the number of guesses for a user in a location
+   * @param userId
+   * @param locationId
+   */
+  async guessCount(userId: string, locationId: string) {
+    return this.guess.count({
+      where: {
+        userId,
+        locationId,
+      },
+    });
   }
 }

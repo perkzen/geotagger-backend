@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Media, Prisma, User } from '@prisma/client';
 import { PrismaService } from '@app/modules/db/prisma.service';
+import { DEFAULT_POINTS } from '@app/modules/users/constants/points.constants';
 
 @Injectable()
 export class UsersRepository {
@@ -12,7 +13,10 @@ export class UsersRepository {
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
     return this.user.create({
-      data,
+      data: {
+        ...data,
+        points: DEFAULT_POINTS,
+      },
     });
   }
 

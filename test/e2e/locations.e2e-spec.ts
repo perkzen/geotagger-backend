@@ -5,6 +5,7 @@ import { AWS_S3_CLIENT } from '@app/modules/aws/aws.constants';
 import { AwsS3Service } from '@app/modules/aws/s3/aws-s3.service';
 import { GoogleMapsService } from '@app/modules/google/maps/google-maps.service';
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
+import { POINTS_PER_LOCATION_UPLOAD } from '@app/modules/users/constants/points.constants';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
 import { GoogleMapsServiceMock } from '@test/mocks/google-maps-service.mock';
@@ -12,6 +13,7 @@ import { S3ClientMock } from '@test/mocks/s3-client.mock';
 import { createUser, getAccessToken } from '@test/utils/auth';
 import { createGuess } from '@test/utils/guess';
 import { createLocation } from '@test/utils/location';
+import { getUserProfile } from '@test/utils/user';
 
 describe('Locations (e2e)', () => {
   let testingApp: TestAppBootstrap;
@@ -93,7 +95,13 @@ describe('Locations (e2e)', () => {
       await testingApp.httpServer.request().post('/locations').expect(401);
     });
     it('should create location', async () => {
+      let user = await getUserProfile(testingApp, accessToken);
+      expect(user.points).toBe(POINTS_PER_LOCATION_UPLOAD);
+
       const res = await createNewLocation(accessToken, imageFile);
+
+      user = await getUserProfile(testingApp, accessToken);
+      expect(user.points).toBe(POINTS_PER_LOCATION_UPLOAD * 2);
 
       expect(res.status).toBe(201);
       expect(res.body.media.keyUrl).toBe(imageUrl);

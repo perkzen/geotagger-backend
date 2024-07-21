@@ -9,6 +9,7 @@ import { CannotUpdateLocationException } from '@app/modules/locations/exceptions
 import { LocationNotFoundException } from '@app/modules/locations/exceptions/location-not-found.exception';
 import { LocationsRepository } from '@app/modules/locations/repositories/locations.repository';
 import { MediaService } from '@app/modules/media/services/media.service';
+import { PointsService } from '@app/modules/users/services/points.service';
 
 @Injectable()
 export class LocationsService {
@@ -17,6 +18,7 @@ export class LocationsService {
   constructor(
     private readonly locationsRepository: LocationsRepository,
     private readonly mediaService: MediaService,
+    private readonly pointsService: PointsService,
   ) {}
 
   async create(userId: string, dto: CreateLocationDto, image: Express.Multer.File) {
@@ -24,6 +26,7 @@ export class LocationsService {
 
     try {
       const location = await this.locationsRepository.create({ ...dto, userId, mediaId: media.id });
+      await this.pointsService.incrementPoints(userId);
       return { ...location, media };
     } catch (error) {
       await this.mediaService.deleteMedia(media.id);

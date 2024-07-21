@@ -5,6 +5,7 @@ import { AWS_S3_CLIENT } from '@app/modules/aws/aws.constants';
 import { AwsS3Service } from '@app/modules/aws/s3/aws-s3.service';
 import { GoogleMapsService } from '@app/modules/google/maps/google-maps.service';
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
+import { POINTS_LOST_FIRST_GUESS, POINTS_PER_LOCATION_UPLOAD } from '@app/modules/users/constants/points.constants';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
 import { GoogleMapsServiceMock } from '@test/mocks/google-maps-service.mock';
@@ -12,6 +13,7 @@ import { S3ClientMock } from '@test/mocks/s3-client.mock';
 import { createUser, getAccessToken } from '@test/utils/auth';
 import { createGuess } from '@test/utils/guess';
 import { createLocation } from '@test/utils/location';
+import { getUserProfile } from '@test/utils/user';
 
 describe('Guess (e2e)', () => {
   let testingApp: TestAppBootstrap;
@@ -109,23 +111,6 @@ describe('Guess (e2e)', () => {
       expect(response.status).toBe(403);
       expect(response.body.error).toBe('Cannot guess on your own location');
     });
-    it('should return 400 if location is already guessed by the user', async () => {
-      const { body } = await createNewLocation(otherAccessToken);
-      await testingApp.httpServer
-        .request()
-        .post(`/locations/guess/${body.id}`)
-        .set('Authorization', `Bearer ${accessToken}`)
-        .send({ lat: 51.5074, lng: 0.1278 });
-
-      const response = await testingApp.httpServer
-        .request()
-        .post(`/locations/guess/${body.id}`)
-        .set('Authorization', `Bearer ${accessToken}`)
-        .send({ lat: 51.5074, lng: 0.1278 });
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('User already tried to guess this location');
-    });
     it('should return 201 if location is guessed successfully', async () => {
       const { body } = await createNewLocation(otherAccessToken);
       const response = await testingApp.httpServer
@@ -133,6 +118,9 @@ describe('Guess (e2e)', () => {
         .post(`/locations/guess/${body.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ lat: 51.5074, lng: 0.1278 });
+
+      const user = await getUserProfile(testingApp, accessToken);
+      expect(user.points).toBe(POINTS_PER_LOCATION_UPLOAD * 2 - POINTS_LOST_FIRST_GUESS);
 
       expect(response.status).toBe(201);
       expect(response.body.id).toBeDefined();
