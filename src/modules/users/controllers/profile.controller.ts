@@ -19,7 +19,7 @@ export class ProfileController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user profile' })
   @ApiOkResponse({ type: UserProfileDto })
-  async getProfile(@User('userId') userId: string) {
+  async getProfile(@User('id') userId: string) {
     const user = await this.usersService.findById(userId, { media: true });
     return serializeToDto(UserProfileDto, user);
   }
@@ -30,7 +30,7 @@ export class ProfileController {
   @ApiOperation({ summary: 'Change user profile picture' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: ImageDto, required: false })
-  async changeProfilePicture(@User('userId') userId: string, @UploadedImage(false) image?: Express.Multer.File) {
+  async changeProfilePicture(@User('id') userId: string, @UploadedImage(false) image?: Express.Multer.File) {
     const user = await this.usersService.updateProfileImage(userId, image);
     return serializeToDto(UserProfileDto, user);
   }

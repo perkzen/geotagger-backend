@@ -60,7 +60,7 @@ export class LocalAuthController {
   @ApiOperation({ summary: 'Change user password' })
   @ApiBearerAuth()
   @ApiBody({ type: UpdatePasswordDto })
-  async changePassword(@User('userId') userId: string, @Body() dto: UpdatePasswordDto) {
+  async changePassword(@User('id') userId: string, @Body() dto: UpdatePasswordDto) {
     await this.authService.changePassword(userId, dto);
   }
 }
