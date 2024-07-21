@@ -17,22 +17,20 @@ export class GuessController {
   constructor(private readonly guessService: GuessService) {}
 
   @Post('guess/:id')
-  @ApiTags('Location')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a guess for location' })
   @ApiCreatedResponse({ type: GuessDto, description: 'The guess has been successfully created.' })
-  async create(@User('userId') userId: string, @Param('id') locationId: string, @Body() dto: CreateGuessDto) {
+  async create(@User('id') userId: string, @Param('id') locationId: string, @Body() dto: CreateGuessDto) {
     const guess = await this.guessService.create(dto, userId, locationId);
     return serializeToDto(GuessDto, guess);
   }
 
   @Get('me/best-scores')
   @UseInterceptors(MediaInterceptor)
-  @ApiTags('Guess')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user best scores' })
   @ApiOkPaginatedResponse(GuessDto)
-  async getUserBestScores(@Query() query: PaginationQuery, @User('userId') userId: string) {
+  async getUserBestScores(@Query() query: PaginationQuery, @User('id') userId: string) {
     const data = await this.guessService.getUserBestScores(userId, query);
     return serializeToPaginationDto(UserBestScoresDto, data);
   }

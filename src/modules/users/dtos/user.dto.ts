@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsString, IsUUID } from 'class-validator';
+import { Role } from '@app/modules/auth/enums/role.enum';
 
 export class UserDto {
   @ApiProperty()
@@ -22,4 +23,11 @@ export class UserDto {
   @IsString()
   @Expose()
   lastname: string;
+
+  @ApiProperty({
+    enum: Role,
+  })
+  @IsEnum(Role)
+  @Expose()
+  role: Role;
 }

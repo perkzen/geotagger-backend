@@ -7,28 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String     @id @default(uuid())
-  email     String     @unique
-  firstname String
-  lastname  String
-  password  String?
-  imageUrl  String?
-  points    Int        @default(0)
-  createdAt DateTime   @default(now())
-  provider  Provider   @default(local)
-  mediaId   String?    @unique
-  media     Media?     @relation(fields: [mediaId], references: [id])
-  locations Location[]
-  guesses   Guess[]
-
-  @@map("users")
-}
-
 enum Provider {
   google
   facebook
   local
+}
+
+enum Role {
+  user
+  admin
+}
+
+model User {
+  id        String        @id @default(uuid())
+  email     String        @unique
+  firstname String
+  lastname  String
+  password  String?
+  imageUrl  String?
+  points    Int           @default(0)
+  createdAt DateTime      @default(now())
+  provider  Provider      @default(local)
+  role      Role          @default(user)
+  mediaId   String?       @unique
+  media     Media?        @relation(fields: [mediaId], references: [id])
+  locations Location[]
+  guesses   Guess[]
+  Activity  ActivityLog[]
+
+  @@map("users")
 }
 
 model Media {
@@ -69,4 +76,32 @@ model Guess {
   location     Location @relation(fields: [locationId], references: [id])
 
   @@map("guess")
+}
+
+enum Action {
+  click
+  scroll
+  added_value
+  changeed_value
+  removed_value
+}
+
+enum ComponentType {
+  link
+  button
+  input
+}
+
+model ActivityLog {
+  id            String         @id @default(uuid())
+  action        Action
+  componentType ComponentType? // null if action is scroll
+  value         String?
+  location      String
+  createdAt     DateTime       @default(now())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+
+  @@index([createdAt])
+  @@map("activity_log")
 }

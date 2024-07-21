@@ -1,9 +1,15 @@
+import { Role } from '@app/modules/auth/enums/role.enum';
+
 export type JwtPayload = {
-  sub: string;
+  sub: {
+    id: string;
+    role: Role;
+  };
   email: string;
 };
 
 export type JwtUser = {
-  userId: string;
+  id: string;
   email: string;
+  role: Role;
 };

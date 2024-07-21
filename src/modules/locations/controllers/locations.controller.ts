@@ -28,7 +28,7 @@ export class LocationsController {
   @ApiOperation({ summary: 'Create location' })
   @ApiCreatedResponse({ type: LocationDto })
   async create(
-    @User('userId') userId: string,
+    @User('id') userId: string,
     @Body() dto: CreateLocationDto,
     @UploadedImage() image: Express.Multer.File,
   ) {
@@ -50,7 +50,7 @@ export class LocationsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find users locations' })
   @ApiOkPaginatedResponse(LocationDto)
-  async getByUser(@Query() query: PaginationQuery, @User('userId') userId: string) {
+  async getByUser(@Query() query: PaginationQuery, @User('id') userId: string) {
     const data = await this.locationsService.listByUser(userId, query);
     return serializeToPaginationDto(LocationDto, data);
   }
@@ -67,7 +67,7 @@ export class LocationsController {
   @Delete(':id')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete location by id' })
-  async delete(@Param('id') id: string, @User('userId') userId: string) {
+  async delete(@Param('id') id: string, @User('id') userId: string) {
     await this.locationsService.delete(id, userId);
   }
 
@@ -80,7 +80,7 @@ export class LocationsController {
   @ApiCreatedResponse({ type: LocationDto })
   async update(
     @Param('id') id: string,
-    @User('userId') userId: string,
+    @User('id') userId: string,
     @Body() dto: UpdateLocationDto,
     @UploadedImage(false) image?: Express.Multer.File,
   ) {

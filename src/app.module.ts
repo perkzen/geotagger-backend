@@ -12,6 +12,7 @@ import { GuessModule } from './modules/guess/guess.module';
 import { LocationsModule } from './modules/locations/locations.module';
 import { MediaModule } from './modules/media/media.module';
 import { UsersModule } from './modules/users/users.module';
+import { ActivityLogModule } from './modules/activity-log/activity-log.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { UsersModule } from './modules/users/users.module';
     LocationsModule,
     GuessModule,
     GoogleModule,
+    ActivityLogModule,
   ],
   controllers: [AppController],
   providers: [AppService],
