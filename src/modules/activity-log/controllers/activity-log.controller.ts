@@ -11,7 +11,7 @@ import { RolesGuard } from '@app/modules/auth/guards/roles.guard';
 import { MediaInterceptor } from '@app/modules/media/interceptors/media.interceptor';
 
 @ApiTags('Activity Log')
-@Controller('activity-log')
+@Controller('activity-logs')
 export class ActivityLogController {
   constructor(private readonly activityLogService: ActivityLogService) {}
 
