@@ -4,15 +4,16 @@ import { isTestEnv } from '@app/common/utils/env-check';
 import { validateEnv } from '@app/config/env/env-var.validation';
 import { AwsModule } from '@app/modules/aws/aws.module';
 import { PrismaModule } from '@app/modules/db/prisma.module';
+import { RateLimitModule } from '@app/modules/rate-limit/rate-limit.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ActivityLogModule } from './modules/activity-log/activity-log.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { GoogleModule } from './modules/google/google.module';
 import { GuessModule } from './modules/guess/guess.module';
 import { LocationsModule } from './modules/locations/locations.module';
 import { MediaModule } from './modules/media/media.module';
 import { UsersModule } from './modules/users/users.module';
-import { ActivityLogModule } from './modules/activity-log/activity-log.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ActivityLogModule } from './modules/activity-log/activity-log.module';
     GuessModule,
     GoogleModule,
     ActivityLogModule,
+    RateLimitModule,
   ],
   controllers: [AppController],
   providers: [AppService],
