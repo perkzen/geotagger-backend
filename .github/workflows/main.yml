@@ -16,6 +16,8 @@ env:
   AWS_S3_BUCKET_NAME: secret
   AWS_S3_REGION: secret
   GOOGLE_MAPS_API_KEY: secret
+  RESEND_API_KEY: secret
+  RESEND_FROM_EMAIL: secret
 
 jobs:
   lint:

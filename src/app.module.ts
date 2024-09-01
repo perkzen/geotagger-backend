@@ -9,6 +9,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ActivityLogModule } from './modules/activity-log/activity-log.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { EmailModule } from './modules/email/email.module';
 import { GoogleModule } from './modules/google/google.module';
 import { GuessModule } from './modules/guess/guess.module';
 import { LocationsModule } from './modules/locations/locations.module';
@@ -32,6 +33,7 @@ import { UsersModule } from './modules/users/users.module';
     GoogleModule,
     ActivityLogModule,
     RateLimitModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
