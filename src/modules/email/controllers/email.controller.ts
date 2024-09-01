@@ -1,5 +1,6 @@
-import { Controller, Post } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post } from '@nestjs/common';
+import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { SendEmailDto } from '@app/modules/email/dtos/send-email.dto';
 import { EmailTemplate } from '@app/modules/email/enums/email-template.enum';
 import { EmailService } from '@app/modules/email/services/email.service';
 
@@ -10,9 +11,11 @@ export class EmailController {
 
   @Post('send')
   @ApiBearerAuth()
-  async sendEmail() {
-    return await this.emailService.sendEmail('perko.domen@gmail.com', 'test', EmailTemplate.HELLO_WORLD, {
-      name: 'domen',
+  @ApiOperation({ summary: 'Send email' })
+  @ApiCreatedResponse({ description: 'Email sent' })
+  async sendEmail(@Body() { email }: SendEmailDto) {
+    return await this.emailService.sendEmail(email, 'Test', EmailTemplate.HELLO_WORLD, {
+      name: 'Joe Doe',
     });
   }
 }
