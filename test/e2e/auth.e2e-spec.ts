@@ -1,8 +1,10 @@
 import { faker } from '@faker-js/faker';
 import { LoginDto } from '@app/modules/auth/dtos/login.dto';
 import { AuthService } from '@app/modules/auth/services/auth.service';
+import { EMAIL_CLIENT } from '@app/modules/email/utils/email.constants';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
+import { EmailClientMock } from '@test/mocks/email-client.mock';
 import { createUser, getAccessToken } from '@test/utils/auth';
 
 describe('Auth (e2e)', () => {
@@ -29,9 +31,13 @@ describe('Auth (e2e)', () => {
     password: createUserDto.password,
   };
 
+  const sendEmailSpy = jest.spyOn(EmailClientMock.prototype, 'sendEmail');
+
   beforeAll(async () => {
     testingApp = new TestAppBootstrap();
-    await testingApp.compile();
+    await testingApp.compile({
+      overrideFunc: (module) => module.overrideProvider(EMAIL_CLIENT).useClass(EmailClientMock),
+    });
 
     const authService = testingApp.app.get(AuthService);
 
@@ -44,6 +50,10 @@ describe('Auth (e2e)', () => {
 
   afterAll(async () => {
     await testingApp.close();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('/auth/register (POST)', () => {
@@ -103,6 +113,56 @@ describe('Auth (e2e)', () => {
           oldPassword: createUserDto.password,
         })
         .expect(200);
+    });
+  });
+  describe('POST /auth/reset-password', () => {
+    it('should return status 400 if invalid email format', async () => {
+      const res = await testingApp.httpServer.request().post('/auth/reset-password').send({ email: 'test' });
+      expect(res.status).toBe(400);
+    });
+    it("should return status 201 if email doesn't exist", async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post('/auth/reset-password')
+        .send({ email: faker.internet.email() });
+
+      expect(res.status).toBe(201);
+      expect(sendEmailSpy).toHaveBeenCalledTimes(0);
+    });
+    it('should return status 201 and call sendEmail', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post('/auth/reset-password')
+        .send({ email: accessTokenUser.email });
+
+      expect(res.status).toBe(201);
+      expect(sendEmailSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+  describe('POST /auth/reset-password/:token', () => {
+    it('should return status 400 if invalid password', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post('/auth/reset-password/invalid-token')
+        .send({ password: 'pass' });
+
+      expect(res.status).toBe(400);
+    });
+    it('should return status 400 if invalid token', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post('/auth/reset-password/invalid-token')
+        .send({ password: 'NewPassword123!' });
+
+      expect(res.status).toBe(400);
+    });
+    it('should return status 201 and reset password', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post(`/auth/reset-password/${accessToken}`)
+        .send({ password: 'NewPassword123!' });
+
+      expect(res.status).toBe(201);
     });
   });
 });

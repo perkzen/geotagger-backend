@@ -4,8 +4,8 @@ export type JwtPayload = {
   sub: {
     id: string;
     role: Role;
+    email: string;
   };
-  email: string;
 };
 
 export type JwtUser = {
@@ -13,3 +13,5 @@ export type JwtUser = {
   email: string;
   role: Role;
 };
+
+export type RestPasswordJwtPayload = { sub: { id: string; email: string } };

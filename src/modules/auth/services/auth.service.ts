@@ -1,11 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { UpdatePasswordDto } from '@app/modules/auth/dtos/update-password.dto';
 import { AuthStrategy } from '@app/modules/auth/enums/auth-strategy.enum';
 import { CannotChangePasswordException } from '@app/modules/auth/exceptions/cannot-change-password.exception';
 import { UserAlreadyExistsException } from '@app/modules/auth/exceptions/user-already-exists.exception';
+import { JwtPayload } from '@app/modules/auth/types/jwt.types';
 import { comparePasswords, hashPassword } from '@app/modules/auth/utils/password.utils';
+import { EmailTemplate } from '@app/modules/email/enums/email-template.enum';
+import { EmailService } from '@app/modules/email/services/email.service';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { CreateSocialUserDto } from '@app/modules/users/dtos/create-social-user.dto';
 import { UserDto } from '@app/modules/users/dtos/user.dto';
@@ -18,6 +22,8 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly emailService: EmailService,
+    private readonly configService: ConfigService,
   ) {}
 
   async validateLocalUser(email: string, password: string) {
@@ -42,11 +48,11 @@ export class AuthService {
   }
 
   async login(data: UserDto) {
-    const payload = {
-      email: data.email,
+    const payload: JwtPayload = {
       sub: {
         id: data.id,
         role: data.role,
+        email: data.email,
       },
     };
 
@@ -84,5 +90,41 @@ export class AuthService {
     }
 
     await this.usersService.updatePassword(userId, await hashPassword(newPassword));
+  }
+
+  async requestResetPassword(email: string) {
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user) return;
+
+    const payload: Omit<JwtPayload['sub'], 'role'> = {
+      id: user.id,
+      email: user.email,
+    };
+
+    const token = await this.jwtService.signAsync({ sub: payload }, { expiresIn: '15m' });
+
+    try {
+      await this.emailService.sendEmail(user.email, 'Reset your password', EmailTemplate.RESET_PASSWORD, {
+        name: user.firstname,
+        link: `${this.configService.getOrThrow('FRONTEND_URL')}/reset-password?token=${token}`,
+      });
+
+      this.logger.log(`Sent forgot password email to ${user.email}`);
+    } catch (err) {
+      this.logger.error(`Failed to send forgot password email to ${user.email}: `, err);
+    }
+  }
+
+  async resetPassword(token: string, password: string) {
+    try {
+      const {
+        sub: { id },
+      } = await this.jwtService.verifyAsync<{ sub: Omit<JwtPayload['sub'], 'role'> }>(token);
+      await this.usersService.updatePassword(id, await hashPassword(password));
+      this.logger.log(`User with id ${id} reset their password successfully`);
+    } catch (err) {
+      throw new CannotChangePasswordException();
+    }
   }
 }

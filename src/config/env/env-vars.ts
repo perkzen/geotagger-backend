@@ -19,6 +19,9 @@ export const environmentVariablesSchema = z.object({
   AWS_ACCESS_KEY_ID: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),
   GOOGLE_MAPS_API_KEY: z.string(),
+  RESEND_API_KEY: z.string(),
+  RESEND_FROM_EMAIL: z.string(),
+  FRONTEND_URL: z.string().default('http://localhost:3000'),
 });
 
 export type EnvironmentVariables = z.infer<typeof environmentVariablesSchema>;
