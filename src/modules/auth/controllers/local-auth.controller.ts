@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -14,6 +14,8 @@ import { Public } from '@app/modules/auth/decorators/public.decorator';
 import { User } from '@app/modules/auth/decorators/user.decorator';
 import { AuthUserDto } from '@app/modules/auth/dtos/auth-user.dto';
 import { LoginDto } from '@app/modules/auth/dtos/login.dto';
+import { RequestResetPasswordDto } from '@app/modules/auth/dtos/request-reset-password.dto';
+import { ResetPasswordDto } from '@app/modules/auth/dtos/reset-password.dto';
 import { UpdatePasswordDto } from '@app/modules/auth/dtos/update-password.dto';
 import { LocalAuthGuard } from '@app/modules/auth/guards/local-auth.guard';
 import { AuthService } from '@app/modules/auth/services/auth.service';
@@ -62,5 +64,23 @@ export class LocalAuthController {
   @ApiBody({ type: UpdatePasswordDto })
   async changePassword(@User('id') userId: string, @Body() dto: UpdatePasswordDto) {
     await this.authService.changePassword(userId, dto);
+  }
+
+  @Public()
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Sends reset password email' })
+  @ApiBody({ type: RequestResetPasswordDto })
+  @ApiCreatedResponse({ description: 'Password reset link sent successfully' })
+  async requestResetPassword(@Body() data: RequestResetPasswordDto) {
+    await this.authService.requestResetPassword(data.email);
+  }
+
+  @Public()
+  @Post('reset-password/:token')
+  @ApiOperation({ summary: 'Reset user password' })
+  @ApiBody({ type: ResetPasswordDto })
+  @ApiCreatedResponse({ description: 'Password reset successfully' })
+  async resetPassword(@Body() { password }: ResetPasswordDto, @Param('token') token: string) {
+    await this.authService.resetPassword(token, password);
   }
 }

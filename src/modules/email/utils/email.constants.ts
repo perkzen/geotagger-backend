@@ -1,1 +1,1 @@
-export const EMAIL_CLIENT_TOKEN: unique symbol = Symbol('EMAIL_CLIENT_TOKEN');
+export const EMAIL_CLIENT: unique symbol = Symbol('EMAIL_CLIENT_TOKEN');

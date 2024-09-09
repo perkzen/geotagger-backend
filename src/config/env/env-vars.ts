@@ -21,6 +21,7 @@ export const environmentVariablesSchema = z.object({
   GOOGLE_MAPS_API_KEY: z.string(),
   RESEND_API_KEY: z.string(),
   RESEND_FROM_EMAIL: z.string(),
+  FRONTEND_URL: z.string().default('http://localhost:3000'),
 });
 
 export type EnvironmentVariables = z.infer<typeof environmentVariablesSchema>;
