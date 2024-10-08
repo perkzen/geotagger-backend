@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
+import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { AUTH_COOKIE_NAME } from '@app/modules/auth/constants/auth.constants';
 import { AuthStrategy } from '@app/modules/auth/enums/auth-strategy.enum';
 import { JwtPayload, JwtUser } from '@app/modules/auth/types/jwt.types';
 
@@ -9,7 +11,7 @@ import { JwtPayload, JwtUser } from '@app/modules/auth/types/jwt.types';
 export class JwtStrategy extends PassportStrategy(Strategy, AuthStrategy.JWT) {
   constructor(private readonly configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([ExtractJwt.fromAuthHeaderAsBearerToken(), JwtStrategy.fromCookie]),
       ignoreExpiration: false,
       secretOrKey: configService.getOrThrow('JWT_SECRET'),
     });
@@ -17,5 +19,18 @@ export class JwtStrategy extends PassportStrategy(Strategy, AuthStrategy.JWT) {
 
   async validate({ sub }: JwtPayload): Promise<JwtUser> {
     return sub;
+  }
+
+  private static fromCookie(req: Request): string | null {
+    if (
+      req.cookies &&
+      AUTH_COOKIE_NAME in req.cookies &&
+      typeof req.cookies[AUTH_COOKIE_NAME] === 'string' &&
+      req.cookies[AUTH_COOKIE_NAME].length > 0
+    ) {
+      return req.cookies[AUTH_COOKIE_NAME];
+    }
+
+    return null;
   }
 }

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCookieAuth, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiOkPaginatedResponse } from '@app/common/decorators/api-ok-paginated-response.decorator';
 import { PaginationQuery } from '@app/common/pagination/pagination.query';
 import { serializeToPaginationDto } from '@app/common/pagination/serializte-to-pagniated-dto';
@@ -12,12 +12,13 @@ import { GuessService } from '@app/modules/guess/services/guess.service';
 import { MediaInterceptor } from '@app/modules/media/interceptors/media.interceptor';
 
 @ApiTags('Location')
+@ApiBearerAuth()
+@ApiCookieAuth()
 @Controller('locations')
 export class GuessController {
   constructor(private readonly guessService: GuessService) {}
 
   @Post('guess/:id')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a guess for location' })
   @ApiCreatedResponse({ type: GuessDto, description: 'The guess has been successfully created.' })
   async create(@User('id') userId: string, @Param('id') locationId: string, @Body() dto: CreateGuessDto) {
@@ -27,7 +28,6 @@ export class GuessController {
 
   @Get('me/best-scores')
   @UseInterceptors(MediaInterceptor)
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user best scores' })
   @ApiOkPaginatedResponse(GuessDto)
   async getUserBestScores(@Query() query: PaginationQuery, @User('id') userId: string) {

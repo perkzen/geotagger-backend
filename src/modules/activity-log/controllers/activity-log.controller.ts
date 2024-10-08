@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { ActivityLogDto } from '@app/modules/activity-log/dtos/activity-log.dto';
 import { CreateActivityLogDto } from '@app/modules/activity-log/dtos/create-activity-log.dto';
@@ -11,12 +11,13 @@ import { RolesGuard } from '@app/modules/auth/guards/roles.guard';
 import { MediaInterceptor } from '@app/modules/media/interceptors/media.interceptor';
 
 @ApiTags('Activity Log')
+@ApiBearerAuth()
+@ApiCookieAuth()
 @Controller('activity-logs')
 export class ActivityLogController {
   constructor(private readonly activityLogService: ActivityLogService) {}
 
   @Post()
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Create activity log' })
   async create(@User('id') userId: string, @Body() dto: CreateActivityLogDto) {
     const activityLog = await this.activityLogService.create(userId, dto);
@@ -27,7 +28,6 @@ export class ActivityLogController {
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
   @UseInterceptors(MediaInterceptor)
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get activity log for last 100 actions' })
   @ApiOkResponse({ type: ActivityLogDto, isArray: true })
   async getLogs() {

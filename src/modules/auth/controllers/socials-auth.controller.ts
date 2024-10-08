@@ -1,17 +1,21 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
-import { serializeToDto } from '@app/common/utils/serialize-to-dto';
-import { AuthUserDto } from '@app/modules/auth/dtos/auth-user.dto';
+import { Request, Response } from 'express';
+import { AUTH_COOKIE_NAME } from '@app/modules/auth/constants/auth.constants';
 import { SocialAuthProviderGuard } from '@app/modules/auth/guards/social-auth-provider.guard';
 import { AuthService } from '@app/modules/auth/services/auth.service';
+import { cookieOptions } from '@app/modules/auth/utils/cookie.utils';
 import { UserDto } from '@app/modules/users/dtos/user.dto';
 import { Public } from '../decorators/public.decorator';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class SocialsAuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Public()
   @Get(':provider')
@@ -35,9 +39,13 @@ export class SocialsAuthController {
     description: 'The social login provider (facebook or google)',
   })
   @ApiOperation({ summary: 'Handles the social login provider callback' })
-  async handleLoginCallback(@Req() req: Request) {
+  async handleLoginCallback(@Req() req: Request, @Res() res: Response) {
     const user = req.user as UserDto;
-    const dto = await this.authService.login(user);
-    return serializeToDto(AuthUserDto, dto);
+    const { accessToken } = await this.authService.login(user);
+
+    const authCallbackUrl = this.configService.get('AUTH_CALLBACK_URL'); // http://localhost:3000
+
+    res.cookie(AUTH_COOKIE_NAME, accessToken, cookieOptions);
+    res.redirect(authCallbackUrl);
   }
 }

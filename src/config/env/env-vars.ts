@@ -22,6 +22,7 @@ export const environmentVariablesSchema = z.object({
   RESEND_API_KEY: z.string(),
   RESEND_FROM_EMAIL: z.string(),
   FRONTEND_URL: z.string().default('http://localhost:3000'),
+  AUTH_CALLBACK_URL: z.string().default('http://localhost:3000'),
 });
 
 export type EnvironmentVariables = z.infer<typeof environmentVariablesSchema>;
