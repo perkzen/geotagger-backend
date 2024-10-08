@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { HttpExceptionFilter } from '@app/common/filters/http-exception.filter';
 import { LoggingInterceptor } from '@app/common/interceptors/logging.interceptor';
@@ -20,6 +21,7 @@ export class MiddlewareSetup extends BaseSetup {
     this.setupFilters();
     this.setupInterceptors();
     this.setupShutdownHooks();
+    this.setupCookieParser();
     this.logger.log('Middleware setup completed!');
   }
 
@@ -28,7 +30,7 @@ export class MiddlewareSetup extends BaseSetup {
   }
 
   private setupCors() {
-    this.app.enableCors({ origin: '*' });
+    this.app.enableCors({ origin: this.configService.getOrThrow('FRONTEND_URL'), credentials: true });
   }
 
   private setupCompression() {
@@ -50,5 +52,9 @@ export class MiddlewareSetup extends BaseSetup {
 
   private setupShutdownHooks(): void {
     this.app.enableShutdownHooks();
+  }
+
+  private setupCookieParser() {
+    this.app.use(cookieParser());
   }
 }

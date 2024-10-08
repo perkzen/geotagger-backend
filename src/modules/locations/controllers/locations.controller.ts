@@ -1,6 +1,14 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiCookieAuth,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ApiOkPaginatedResponse } from '@app/common/decorators/api-ok-paginated-response.decorator';
 import { PaginationQuery } from '@app/common/pagination/pagination.query';
 import { serializeToPaginationDto } from '@app/common/pagination/serializte-to-pagniated-dto';
@@ -15,6 +23,8 @@ import { UploadedImage } from '@app/modules/media/decorators/uploaded-image.deco
 import { MediaInterceptor } from '@app/modules/media/interceptors/media.interceptor';
 
 @ApiTags('Location')
+@ApiBearerAuth()
+@ApiCookieAuth()
 @UseInterceptors(MediaInterceptor)
 @Controller('locations')
 export class LocationsController {
@@ -24,7 +34,6 @@ export class LocationsController {
   @UseInterceptors(FileInterceptor('image'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateLocationSwaggerDto })
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Create location' })
   @ApiCreatedResponse({ type: LocationDto })
   async create(
@@ -38,7 +47,6 @@ export class LocationsController {
   }
 
   @Get()
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'List locations with pagination' })
   @ApiOkPaginatedResponse(LocationDto)
   async list(@Query() query: PaginationQuery) {
@@ -47,7 +55,6 @@ export class LocationsController {
   }
 
   @Get('me')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Find users locations' })
   @ApiOkPaginatedResponse(LocationDto)
   async getByUser(@Query() query: PaginationQuery, @User('id') userId: string) {
@@ -56,7 +63,6 @@ export class LocationsController {
   }
 
   @Get(':id')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Find location by id' })
   @ApiCreatedResponse({ type: LocationDto })
   async getById(@Param('id') id: string) {
@@ -65,7 +71,6 @@ export class LocationsController {
   }
 
   @Delete(':id')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete location by id' })
   async delete(@Param('id') id: string, @User('id') userId: string) {
     await this.locationsService.delete(id, userId);
@@ -74,7 +79,6 @@ export class LocationsController {
   @Put(':id')
   @UseInterceptors(FileInterceptor('image'))
   @ApiConsumes('multipart/form-data')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Update location by id' })
   @ApiBody({ type: UpdateLocationSwaggerDto })
   @ApiCreatedResponse({ type: LocationDto })
