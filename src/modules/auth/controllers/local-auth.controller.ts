@@ -15,12 +15,14 @@ import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { ACCESS_TOKEN_COOKIE_NAME } from '@app/modules/auth/constants/auth.constants';
 import { Public } from '@app/modules/auth/decorators/public.decorator';
 import { User } from '@app/modules/auth/decorators/user.decorator';
-import { AuthUserDto } from '@app/modules/auth/dtos/auth-user.dto';
+import { AuthTokensDto } from '@app/modules/auth/dtos/auth-tokens.dto';
 import { LoginDto } from '@app/modules/auth/dtos/login.dto';
+import { RefreshTokenDto } from '@app/modules/auth/dtos/refresh-token.dto';
 import { RequestResetPasswordDto } from '@app/modules/auth/dtos/request-reset-password.dto';
 import { ResetPasswordDto } from '@app/modules/auth/dtos/reset-password.dto';
 import { UpdatePasswordDto } from '@app/modules/auth/dtos/update-password.dto';
 import { LocalAuthGuard } from '@app/modules/auth/guards/local-auth.guard';
+import { RefreshTokenAuthGuard } from '@app/modules/auth/guards/refresh-token-auth.guard';
 import { AuthService } from '@app/modules/auth/services/auth.service';
 import { cookieOptions } from '@app/modules/auth/utils/cookie.utils';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
@@ -40,12 +42,12 @@ export class LocalAuthController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User logged in successfully',
-    type: AuthUserDto,
+    type: AuthTokensDto,
   })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   async login(@User() user: UserDto) {
-    const authUser = await this.authService.login(user);
-    return serializeToDto(AuthUserDto, authUser);
+    const tokens = await this.authService.login(user);
+    return serializeToDto(AuthTokensDto, tokens);
   }
 
   @Public()
@@ -100,5 +102,15 @@ export class LocalAuthController {
   async logout(@Res() res: Response) {
     res.clearCookie(ACCESS_TOKEN_COOKIE_NAME, cookieOptions);
     res.sendStatus(HttpStatus.OK);
+  }
+
+  @Public()
+  @Post('refresh-token')
+  @UseGuards(RefreshTokenAuthGuard)
+  @ApiOperation({ summary: 'Refresh token' })
+  @ApiBody({ type: RefreshTokenDto, description: 'You can send refresh token via body or cookie', required: false })
+  async refreshToken(@User() user: UserDto) {
+    const tokens = await this.authService.refreshAccessToken(user);
+    return serializeToDto(AuthTokensDto, tokens);
   }
 }

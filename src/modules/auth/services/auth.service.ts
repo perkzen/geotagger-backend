@@ -6,7 +6,7 @@ import { UpdatePasswordDto } from '@app/modules/auth/dtos/update-password.dto';
 import { AuthStrategy } from '@app/modules/auth/enums/auth-strategy.enum';
 import { CannotChangePasswordException } from '@app/modules/auth/exceptions/cannot-change-password.exception';
 import { UserAlreadyExistsException } from '@app/modules/auth/exceptions/user-already-exists.exception';
-import { JwtPayload } from '@app/modules/auth/types/jwt.types';
+import { JwtPayload, JwtUser } from '@app/modules/auth/types/jwt.types';
 import { comparePasswords, hashPassword } from '@app/modules/auth/utils/password.utils';
 import { EmailTemplate } from '@app/modules/email/enums/email-template.enum';
 import { EmailService } from '@app/modules/email/services/email.service';
@@ -57,7 +57,8 @@ export class AuthService {
     };
 
     return {
-      accessToken: await this.jwtService.signAsync(payload),
+      accessToken: await this.jwtService.signAsync(payload, { expiresIn: '15m' }),
+      refreshToken: await this.jwtService.signAsync(payload, { expiresIn: '7d' }),
     };
   }
 
@@ -126,5 +127,16 @@ export class AuthService {
     } catch (err) {
       throw new CannotChangePasswordException();
     }
+  }
+
+  async refreshAccessToken(user: JwtUser) {
+    const payload: JwtPayload = {
+      sub: user,
+    };
+
+    return {
+      accessToken: await this.jwtService.signAsync(payload, { expiresIn: '15m' }),
+      refreshToken: await this.jwtService.signAsync(payload, { expiresIn: '7d' }),
+    };
   }
 }
