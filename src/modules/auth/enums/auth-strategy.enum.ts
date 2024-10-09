@@ -3,4 +3,5 @@ export enum AuthStrategy {
   LOCAL = 'local',
   GOOGLE = 'google',
   FACEBOOK = 'facebook',
+  REFRESH_TOKEN = 'refresh-token',
 }

@@ -3,7 +3,7 @@ import { AuthService } from '@app/modules/auth/services/auth.service';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { UsersRepository } from '@app/modules/users/repositories/users.repository';
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
-import { createUser, getAccessToken } from '@test/utils/auth';
+import { createUser, getAccessTokens } from '@test/utils/auth';
 
 describe('Activity Log (e2e)', () => {
   let testingApp: TestAppBootstrap;
@@ -36,8 +36,19 @@ describe('Activity Log (e2e)', () => {
     const admin = await createUser(authService, adminDto);
     await userRepo.update(admin.id, { role: 'admin' });
 
-    userAccessToken = await getAccessToken(authService, { email: userDto.email, password: userDto.password });
-    adminAccessToken = await getAccessToken(authService, { email: adminDto.email, password: adminDto.password });
+    userAccessToken = (
+      await getAccessTokens(authService, {
+        email: userDto.email,
+        password: userDto.password,
+      })
+    ).accessToken;
+
+    adminAccessToken = (
+      await getAccessTokens(authService, {
+        email: adminDto.email,
+        password: adminDto.password,
+      })
+    ).accessToken;
   });
 
   afterAll(async () => {

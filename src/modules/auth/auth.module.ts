@@ -11,6 +11,7 @@ import { FacebookStrategy } from '@app/modules/auth/stragegies/facebook-strategy
 import { GoogleStrategy } from '@app/modules/auth/stragegies/google-strategy';
 import { JwtStrategy } from '@app/modules/auth/stragegies/jwt.strategy';
 import { LocalStrategy } from '@app/modules/auth/stragegies/local.strategy';
+import { RefreshTokenStrategy } from '@app/modules/auth/stragegies/refresh-token.strategy';
 import { EmailModule } from '@app/modules/email/email.module';
 import { UsersModule } from '@app/modules/users/users.module';
 
@@ -35,6 +36,7 @@ import { UsersModule } from '@app/modules/users/users.module';
     LocalStrategy,
     GoogleStrategy,
     FacebookStrategy,
+    RefreshTokenStrategy,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

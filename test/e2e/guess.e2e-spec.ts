@@ -10,7 +10,7 @@ import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dt
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
 import { GoogleMapsServiceMock } from '@test/mocks/google-maps-service.mock';
 import { S3ClientMock } from '@test/mocks/s3-client.mock';
-import { createUser, getAccessToken } from '@test/utils/auth';
+import { createUser, getAccessTokens } from '@test/utils/auth';
 import { createGuess } from '@test/utils/guess';
 import { createLocation } from '@test/utils/location';
 import { getUserProfile } from '@test/utils/user';
@@ -65,13 +65,15 @@ describe('Guess (e2e)', () => {
     jest.spyOn(awsS3Service, 'getObjectUrl').mockImplementation(async () => imageUrl);
 
     await createUser(authService, user);
-    accessToken = await getAccessToken(authService, { email: user.email, password: user.password });
+    accessToken = (await getAccessTokens(authService, { email: user.email, password: user.password })).accessToken;
 
     await createUser(authService, otherUser);
-    otherAccessToken = await getAccessToken(authService, {
-      email: otherUser.email,
-      password: otherUser.password,
-    });
+    otherAccessToken = (
+      await getAccessTokens(authService, {
+        email: otherUser.email,
+        password: otherUser.password,
+      })
+    ).accessToken;
   });
 
   afterAll(async () => {
