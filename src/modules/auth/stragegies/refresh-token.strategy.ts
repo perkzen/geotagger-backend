@@ -25,12 +25,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, AuthStrateg
   }
 
   private static fromCookie(req: Request): string | null {
-    if (
-      req.cookies &&
-      REFRESH_TOKEN_COOKIE_NAME in req.cookies &&
-      typeof req.cookies[REFRESH_TOKEN_COOKIE_NAME] === 'string' &&
-      req.cookies[REFRESH_TOKEN_COOKIE_NAME].length > 0
-    ) {
+    if (req.cookies && REFRESH_TOKEN_COOKIE_NAME in req.cookies && req.cookies[REFRESH_TOKEN_COOKIE_NAME].length > 0) {
       return req.cookies[REFRESH_TOKEN_COOKIE_NAME];
     }
 

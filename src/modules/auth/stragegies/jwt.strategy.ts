@@ -22,12 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, AuthStrategy.JWT) {
   }
 
   private static fromCookie(req: Request): string | null {
-    if (
-      req.cookies &&
-      ACCESS_TOKEN_COOKIE_NAME in req.cookies &&
-      typeof req.cookies[ACCESS_TOKEN_COOKIE_NAME] === 'string' &&
-      req.cookies[ACCESS_TOKEN_COOKIE_NAME].length > 0
-    ) {
+    if (req.cookies && ACCESS_TOKEN_COOKIE_NAME in req.cookies && req.cookies[ACCESS_TOKEN_COOKIE_NAME].length > 0) {
       return req.cookies[ACCESS_TOKEN_COOKIE_NAME];
     }
 
