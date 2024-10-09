@@ -2,7 +2,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { isProdEnv } from '@app/common/utils/env-check';
 import { BaseSetup } from '@app/config/setups/base.setup';
-import { AUTH_COOKIE_NAME } from '@app/modules/auth/constants/auth.constants';
+import { ACCESS_TOKEN_COOKIE_NAME } from '@app/modules/auth/constants/auth.constants';
 
 export class SwaggerSetup extends BaseSetup {
   constructor(readonly app: NestExpressApplication) {
@@ -25,7 +25,7 @@ export class SwaggerSetup extends BaseSetup {
       .setDescription('Web application for geotagging photos and sharing them with friends.')
       .setVersion('1.0')
       .addBearerAuth()
-      .addCookieAuth(AUTH_COOKIE_NAME, {
+      .addCookieAuth(ACCESS_TOKEN_COOKIE_NAME, {
         scheme: 'Bearer',
         type: 'http',
         in: 'Header',
