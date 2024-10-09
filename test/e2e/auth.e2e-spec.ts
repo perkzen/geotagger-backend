@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { ACCESS_TOKEN_COOKIE_NAME } from '@app/modules/auth/constants/auth.constants';
 import { LoginDto } from '@app/modules/auth/dtos/login.dto';
 import { AuthService } from '@app/modules/auth/services/auth.service';
 import { EMAIL_CLIENT } from '@app/modules/email/utils/email.constants';
@@ -56,7 +57,7 @@ describe('Auth (e2e)', () => {
     jest.clearAllMocks();
   });
 
-  describe('/auth/register (POST)', () => {
+  describe('POST /auth/register', () => {
     it('should register successfully', async () => {
       const res = await testingApp.httpServer.request().post('/auth/register').send(createUserDto);
       expect(res.status).toBe(201);
@@ -79,7 +80,7 @@ describe('Auth (e2e)', () => {
     });
   });
 
-  describe('/auth/login (POST)', () => {
+  describe('POST /auth/login', () => {
     it('should fail because user is not registered', async () => {
       const res = await testingApp.httpServer.request().post('/auth/login').send({ email: 'test', password: 'test' });
       expect(res.status).toBe(401);
@@ -163,6 +164,32 @@ describe('Auth (e2e)', () => {
         .send({ password: 'NewPassword123!' });
 
       expect(res.status).toBe(201);
+    });
+  });
+
+  describe('POST /auth/logout', () => {
+    it('should return 401 if user is not authenticated', async () => {
+      const res = await testingApp.httpServer.request().post('/auth/logout');
+      expect(res.status).toBe(401);
+    });
+    it('should return 200 if user is authenticated', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post('/auth/logout')
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      expect(res.status).toBe(200);
+    });
+    it('should clear access token cookie', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post('/auth/logout')
+        .set('Cookie', `${ACCESS_TOKEN_COOKIE_NAME}=${accessToken}`);
+
+      const setCookieHeader = res.headers['set-cookie'];
+
+      expect(res.status).toBe(200);
+      expect(setCookieHeader[0]).toContain(`${ACCESS_TOKEN_COOKIE_NAME}=;`);
     });
   });
 });

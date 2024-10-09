@@ -2,7 +2,7 @@ import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
-import { AUTH_COOKIE_NAME } from '@app/modules/auth/constants/auth.constants';
+import { ACCESS_TOKEN_COOKIE_NAME } from '@app/modules/auth/constants/auth.constants';
 import { SocialAuthProviderGuard } from '@app/modules/auth/guards/social-auth-provider.guard';
 import { AuthService } from '@app/modules/auth/services/auth.service';
 import { cookieOptions } from '@app/modules/auth/utils/cookie.utils';
@@ -45,7 +45,7 @@ export class SocialsAuthController {
 
     const authCallbackUrl = this.configService.get('AUTH_CALLBACK_URL'); // http://localhost:3000
 
-    res.cookie(AUTH_COOKIE_NAME, accessToken, cookieOptions);
+    res.cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken, cookieOptions);
     res.redirect(authCallbackUrl);
   }
 }
