@@ -1,11 +1,9 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
-import { ACCESS_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME } from '@app/modules/auth/constants/auth.constants';
 import { SocialAuthProviderGuard } from '@app/modules/auth/guards/social-auth-provider.guard';
 import { AuthService } from '@app/modules/auth/services/auth.service';
-import { cookieOptions } from '@app/modules/auth/utils/cookie.utils';
 import { UserDto } from '@app/modules/users/dtos/user.dto';
 import { Public } from '../decorators/public.decorator';
 
@@ -26,6 +24,11 @@ export class SocialsAuthController {
     enum: ['facebook', 'google'],
     description: 'The social login provider (facebook or google)',
   })
+  @ApiParam({
+    name: 'redirect',
+    required: true,
+    description: 'The redirect URL',
+  })
   @ApiOperation({ summary: 'Redirects to the social login provider' })
   handleSocialLogin() {}
 
@@ -39,14 +42,10 @@ export class SocialsAuthController {
     description: 'The social login provider (facebook or google)',
   })
   @ApiOperation({ summary: 'Handles the social login provider callback' })
-  async handleLoginCallback(@Req() req: Request, @Res() res: Response) {
+  async handleLoginCallback(@Req() req: Request, @Res() res: Response, @Query('redirect') redirectUrl: string) {
     const user = req.user as UserDto;
     const { accessToken, refreshToken } = await this.authService.login(user);
 
-    const authCallbackUrl = this.configService.get('AUTH_CALLBACK_URL'); // http://localhost:3000
-
-    res.cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken, cookieOptions);
-    res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieOptions);
-    res.redirect(authCallbackUrl);
+    res.redirect(`${redirectUrl}?accessToken=${accessToken}&refreshToken=${refreshToken}`);
   }
 }

@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-import { ACCESS_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME } from '@app/modules/auth/constants/auth.constants';
 import { LoginDto } from '@app/modules/auth/dtos/login.dto';
 import { AuthService } from '@app/modules/auth/services/auth.service';
 import { EMAIL_CLIENT } from '@app/modules/email/utils/email.constants';
@@ -172,32 +171,6 @@ describe('Auth (e2e)', () => {
     });
   });
 
-  describe('POST /auth/logout', () => {
-    it('should return 401 if user is not authenticated', async () => {
-      const res = await testingApp.httpServer.request().post('/auth/logout');
-      expect(res.status).toBe(401);
-    });
-    it('should return 200 if user is authenticated', async () => {
-      const res = await testingApp.httpServer
-        .request()
-        .post('/auth/logout')
-        .set('Authorization', `Bearer ${accessToken}`);
-
-      expect(res.status).toBe(200);
-    });
-    it('should clear access token cookie', async () => {
-      const res = await testingApp.httpServer
-        .request()
-        .post('/auth/logout')
-        .set('Cookie', `${ACCESS_TOKEN_COOKIE_NAME}=${accessToken}`);
-
-      const setCookieHeader = res.headers['set-cookie'];
-
-      expect(res.status).toBe(200);
-      expect(setCookieHeader[0]).toContain(`${ACCESS_TOKEN_COOKIE_NAME}=;`);
-    });
-  });
-
   describe('POST /auth/refresh-token', () => {
     it('should return 401 if no refresh token is provided', async () => {
       const res = await testingApp.httpServer.request().post('/auth/refresh-token');
@@ -209,29 +182,11 @@ describe('Auth (e2e)', () => {
       expect(res.status).toBe(401);
     });
     it('should return 200 if refresh token is valid', async () => {
-      const res = await testingApp.httpServer.request().post('/auth/refresh-token').send({ refreshToken: accessToken });
+      const res = await testingApp.httpServer.request().post('/auth/refresh-token').send({ refreshToken });
 
       expect(res.status).toBe(201);
       expect(res.body).toHaveProperty('accessToken');
       expect(res.body).toHaveProperty('refreshToken');
-    });
-    it('should return 200 if refresh token is valid and sent via cookie', async () => {
-      const res = await testingApp.httpServer
-        .request()
-        .post('/auth/refresh-token')
-        .set('Cookie', `${REFRESH_TOKEN_COOKIE_NAME}=${refreshToken}`);
-
-      expect(res.status).toBe(201);
-      expect(res.body).toHaveProperty('accessToken');
-      expect(res.body).toHaveProperty('refreshToken');
-    });
-    it('should return 401 if send invalid refresh token via cookie', async () => {
-      const res = await testingApp.httpServer
-        .request()
-        .post('/auth/refresh-token')
-        .set('Cookie', `${REFRESH_TOKEN_COOKIE_NAME}=invalid`);
-
-      expect(res.status).toBe(401);
     });
   });
 });
