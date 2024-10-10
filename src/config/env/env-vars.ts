@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { Environment } from '@app/config/env/env-enum';
+import { Environment } from '@app/config/env/enum/env.enum';
+import { booleanFromEnv } from '@app/config/env/utils/preprocess';
 
 export const environmentVariablesSchema = z.object({
   NODE_ENV: z.nativeEnum(Environment),
@@ -23,6 +24,10 @@ export const environmentVariablesSchema = z.object({
   RESEND_FROM_EMAIL: z.string(),
   FRONTEND_URL: z.string().default('http://localhost:3000'),
   AUTH_CALLBACK_URL: z.string().default('http://localhost:3000'),
+  PINO_LOG_LEVEL: z.string().default('debug'),
+  PINO_LOG_REQUESTS: booleanFromEnv.default(true),
+  PINO_QUIET_REQ: booleanFromEnv.default(true),
+  PINO_ENABLE_PRETTY_PRINT: booleanFromEnv.default(true),
 });
 
 export type EnvironmentVariables = z.infer<typeof environmentVariablesSchema>;
