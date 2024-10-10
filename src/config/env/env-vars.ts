@@ -11,7 +11,6 @@ export const environmentVariablesSchema = z.object({
 
   REDIS_HOST: z.string(),
   REDIS_PORT: z.coerce.number().int().positive(),
-  REDIS_PASSWORD: z.string(),
 
   BULL_BOARD_USERNAME: z.string().optional(),
   BULL_BOARD_PASSWORD: z.string().optional(),
