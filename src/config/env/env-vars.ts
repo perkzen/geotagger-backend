@@ -9,6 +9,13 @@ export const environmentVariablesSchema = z.object({
 
   DATABASE_URL: z.string(),
 
+  REDIS_HOST: z.string(),
+  REDIS_PORT: z.coerce.number().int().positive(),
+  REDIS_PASSWORD: z.string(),
+
+  BULL_BOARD_USERNAME: z.string().optional(),
+  BULL_BOARD_PASSWORD: z.string().optional(),
+
   JWT_SECRET: z.string().default('secret'),
   JWT_ACCESS_TOKEN_EXPIRATION_TIME: z.string().default('1d'),
 

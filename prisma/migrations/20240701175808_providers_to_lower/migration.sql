@@ -1,7 +1,7 @@
 /*
   Warnings:
 
-  - The values [GOOGLE,FACEBOOK,LOCAL] on the enum `Provider` will be removed. If these variants are still used in the database, this will fail.
+  - The values [GOOGLE,FACEBOOK,LOCAL] on the enums `Provider` will be removed. If these variants are still used in the database, this will fail.
 
 */
 -- AlterEnum
