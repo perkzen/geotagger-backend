@@ -1,6 +1,7 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Body, Controller, Get, Logger, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Queue } from 'bullmq';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { ActivityLogDto } from '@app/modules/activity-log/dtos/activity-log.dto';
@@ -28,6 +29,7 @@ export class ActivityLogController {
   ) {}
 
   @Post()
+  @SkipThrottle()
   @ApiOperation({ summary: 'Create activity log' })
   async create(@User('id') userId: string, @Body() dto: CreateActivityLogDto) {
     await this.queue.add(JobName.PROCESS_ACTIVITY_LOG, {
