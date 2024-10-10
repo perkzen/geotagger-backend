@@ -1,0 +1,3 @@
+export enum JobName {
+  PROCESS_ACTIVITY_LOG = 'PROCESS_ACTIVITY_LOG',
+}

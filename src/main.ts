@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { loadEnv } from '@app/config/env/dotenv';
+import { BullBoardSetup } from '@app/config/setups/bull-board.setup';
 import { MiddlewareSetup } from '@app/config/setups/middleware.setup';
 import { SwaggerSetup } from '@app/config/setups/swagger.setup';
 import { AppModule } from './app.module';
@@ -15,6 +16,7 @@ async function bootstrap() {
 
   new MiddlewareSetup(app).init();
   new SwaggerSetup(app).init();
+  new BullBoardSetup(app).init();
 
   const PORT = configService.get('PORT');
   const SWAGGER_PATH = configService.get('SWAGGER_PATH');
