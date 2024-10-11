@@ -2,7 +2,7 @@ import { ThrottlerOptions, minutes, seconds } from '@nestjs/throttler';
 import { RateLimitName } from '@app/modules/rate-limit/enums/rate-limit-name.enum';
 
 /**
- * 30 requests per second
+ * 30 requests per 30 seconds
  */
 export const SHORT_RATE_LIMIT: ThrottlerOptions = {
   name: RateLimitName.SHORT,
