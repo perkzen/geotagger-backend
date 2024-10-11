@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { REFRESH_TOKEN_COOKIE_NAME } from '@app/modules/auth/constants/auth.constants';
 import { LoginDto } from '@app/modules/auth/dtos/login.dto';
 import { AuthService } from '@app/modules/auth/services/auth.service';
 import { EMAIL_CLIENT } from '@app/modules/email/utils/email.constants';
@@ -187,6 +188,24 @@ describe('Auth (e2e)', () => {
       expect(res.status).toBe(201);
       expect(res.body).toHaveProperty('accessToken');
       expect(res.body).toHaveProperty('refreshToken');
+    });
+    it('should return 2001 if valid refresh token is send via cookie', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post('/auth/refresh-token')
+        .set('Cookie', `${REFRESH_TOKEN_COOKIE_NAME}=${refreshToken}`);
+
+      expect(res.status).toBe(201);
+      expect(res.body).toHaveProperty('accessToken');
+      expect(res.body).toHaveProperty('refreshToken');
+    });
+    it('should return 401 if refresh token is sent with wrong cookie name', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .post('/auth/refresh-token')
+        .set('Cookie', `refreshToken=${refreshToken}`);
+
+      expect(res.status).toBe(401);
     });
   });
 });
