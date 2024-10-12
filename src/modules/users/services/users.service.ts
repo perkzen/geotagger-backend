@@ -4,6 +4,7 @@ import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
 import { MediaService } from '@app/modules/media/services/media.service';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { CreateSocialUserDto } from '@app/modules/users/dtos/create-social-user.dto';
+import { UpdateUserDto } from '@app/modules/users/dtos/update-user.dto';
 import { CannotCreateUserException } from '@app/modules/users/exceptions/cannot-create-user.exception';
 import { UserNotFoundException } from '@app/modules/users/exceptions/user-not-found.exception';
 import { UsersRepository } from '@app/modules/users/repositories/users.repository';
@@ -72,5 +73,9 @@ export class UsersService {
     }
 
     return this.findById(userId, { media: true });
+  }
+
+  async updateProfile(userId: string, data: UpdateUserDto) {
+    return this.usersRepository.update(userId, data);
   }
 }
