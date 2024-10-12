@@ -3,7 +3,6 @@ import { Media } from '@prisma/client';
 import { MimeType } from '@app/common/enums/mime-type.enum';
 import { AwsS3Service } from '@app/modules/aws/s3/aws-s3.service';
 import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
-import { CreateMediaDto } from '@app/modules/media/dtos/create-media.dto';
 import { MediaRepository } from '@app/modules/media/repositories/media.repository';
 import { sanitizeFilename } from '@app/modules/media/utils/sanitize-filename';
 
@@ -82,12 +81,5 @@ export class MediaService {
     const key = `${bucketPath}/${filename}`;
 
     return this.awsS3Service.getUploadUrl(key, mimeType);
-  }
-
-  /**
-   * Creates a new media record in the database.
-   */
-  async createMedia(data: CreateMediaDto) {
-    return this.mediaRepository.createOrUpdate(data);
   }
 }
