@@ -14,11 +14,11 @@ import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { Public } from '@app/modules/auth/decorators/public.decorator';
 import { User } from '@app/modules/auth/decorators/user.decorator';
 import { AuthTokensDto } from '@app/modules/auth/dtos/auth-tokens.dto';
+import { ChangePasswordDto } from '@app/modules/auth/dtos/change-password.dto';
 import { LoginDto } from '@app/modules/auth/dtos/login.dto';
 import { RefreshTokenDto } from '@app/modules/auth/dtos/refresh-token.dto';
 import { RequestResetPasswordDto } from '@app/modules/auth/dtos/request-reset-password.dto';
 import { ResetPasswordDto } from '@app/modules/auth/dtos/reset-password.dto';
-import { UpdatePasswordDto } from '@app/modules/auth/dtos/update-password.dto';
 import { LocalAuthGuard } from '@app/modules/auth/guards/local-auth.guard';
 import { RefreshTokenAuthGuard } from '@app/modules/auth/guards/refresh-token-auth.guard';
 import { AuthService } from '@app/modules/auth/services/auth.service';
@@ -65,8 +65,8 @@ export class LocalAuthController {
   @ApiBearerAuth()
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Change user password' })
-  @ApiBody({ type: UpdatePasswordDto })
-  async changePassword(@User('id') userId: string, @Body() dto: UpdatePasswordDto) {
+  @ApiBody({ type: ChangePasswordDto })
+  async changePassword(@User('id') userId: string, @Body() dto: ChangePasswordDto) {
     await this.authService.changePassword(userId, dto);
   }
 

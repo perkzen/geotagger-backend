@@ -116,7 +116,7 @@ describe('Auth (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           newPassword: 'NewPassword123!',
-          oldPassword: createUserDto.password,
+          currentPassword: createUserDto.password,
         })
         .expect(200);
     });
