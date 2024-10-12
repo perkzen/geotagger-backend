@@ -56,4 +56,16 @@ export class AwsS3Service {
 
     return await getSignedUrl(this.client, command);
   }
+
+  async getUploadUrl(key: string, mimeType: string) {
+    this.logger.log(`Generating signed URL for upload to S3 bucket: ${this.bucketName}, key: ${key}`);
+
+    const command = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+      ContentType: mimeType,
+    });
+
+    return await getSignedUrl(this.client, command, { expiresIn: 60 });
+  }
 }

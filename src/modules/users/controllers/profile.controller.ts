@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Patch, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
@@ -14,6 +14,7 @@ import { User } from '@app/modules/auth/decorators/user.decorator';
 import { UploadedImage } from '@app/modules/media/decorators/uploaded-image.decorator';
 import { ImageDto } from '@app/modules/media/dtos/image.dto';
 import { MediaInterceptor } from '@app/modules/media/interceptors/media.interceptor';
+import { UpdateUserDto } from '@app/modules/users/dtos/update-user.dto';
 import { UserProfileDto } from '@app/modules/users/dtos/user-profile.dto';
 import { UsersService } from '@app/modules/users/services/users.service';
 
@@ -30,6 +31,14 @@ export class ProfileController {
   @ApiOkResponse({ type: UserProfileDto })
   async getProfile(@User('id') userId: string) {
     const user = await this.usersService.findById(userId, { media: true });
+    return serializeToDto(UserProfileDto, user);
+  }
+
+  @Patch()
+  @ApiOperation({ summary: 'Update user profile' })
+  @ApiOkResponse({ type: UserProfileDto })
+  async updateProfile(@User('id') userId: string, @Body() dto: UpdateUserDto) {
+    const user = await this.usersService.updateProfile(userId, dto);
     return serializeToDto(UserProfileDto, user);
   }
 

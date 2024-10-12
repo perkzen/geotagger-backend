@@ -1,7 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Media } from '@prisma/client';
+import { MimeType } from '@app/common/enums/mime-type.enum';
 import { AwsS3Service } from '@app/modules/aws/s3/aws-s3.service';
 import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
+import { CreateMediaDto } from '@app/modules/media/dtos/create-media.dto';
 import { MediaRepository } from '@app/modules/media/repositories/media.repository';
 import { sanitizeFilename } from '@app/modules/media/utils/sanitize-filename';
 
@@ -14,6 +16,9 @@ export class MediaService {
     private readonly mediaRepository: MediaRepository,
   ) {}
 
+  /**
+   * Uploads a media file to S3 and creates a new media record in the database.
+   */
   async uploadMedia(file: Express.Multer.File, bucketPath: BucketPath): Promise<Media> {
     this.logger.log(`Attempting to uploading media file (${file.originalname}) to bucket (${bucketPath})`);
 
@@ -27,7 +32,7 @@ export class MediaService {
 
     const media = this.mediaRepository.createOrUpdate({
       key: objectKey,
-      mimeType: file.mimetype,
+      mimeType: file.mimetype as MimeType,
       filename,
     });
 
@@ -61,5 +66,28 @@ export class MediaService {
 
   async getMediaUrl(key: string): Promise<string> {
     return this.awsS3Service.getObjectUrl(key);
+  }
+
+  /**
+   * Generates a signed URL for uploading a file to S3.
+   *
+   * You need to implement file validation in S3 bucket rules to
+   * prevent malicious files from being uploaded.
+   *
+   *
+   */
+  async getUploadUrl(originalFilename: string, bucketPath: BucketPath, mimeType: MimeType): Promise<string> {
+    const filename = sanitizeFilename(originalFilename);
+
+    const key = `${bucketPath}/${filename}`;
+
+    return this.awsS3Service.getUploadUrl(key, mimeType);
+  }
+
+  /**
+   * Creates a new media record in the database.
+   */
+  async createMedia(data: CreateMediaDto) {
+    return this.mediaRepository.createOrUpdate(data);
   }
 }
