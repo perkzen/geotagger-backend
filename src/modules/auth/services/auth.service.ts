@@ -14,6 +14,7 @@ import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dt
 import { CreateSocialUserDto } from '@app/modules/users/dtos/create-social-user.dto';
 import { UserDto } from '@app/modules/users/dtos/user.dto';
 import { UsersService } from '@app/modules/users/services/users.service';
+import { IncorrectPasswordException } from '@app/modules/auth/exceptions/incorrect-password.exception';
 
 @Injectable()
 export class AuthService {
@@ -87,7 +88,7 @@ export class AuthService {
     const isPasswordValid = await comparePasswords(currentPassword, user.password);
 
     if (!isPasswordValid) {
-      throw new CannotChangePasswordException();
+      throw new IncorrectPasswordException();
     }
 
     await this.usersService.updatePassword(userId, await hashPassword(newPassword));

@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsStrongPassword } from 'class-validator';
+import { IsString, IsStrongPassword } from 'class-validator';
 
 export class ChangePasswordDto {
   @ApiProperty()
-  @IsStrongPassword()
+  @IsString()
   currentPassword: string;
 
   @ApiProperty()

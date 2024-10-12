@@ -98,16 +98,26 @@ describe('Auth (e2e)', () => {
     });
   });
 
-  describe('PATCH /profile/password', () => {
+  describe('PATCH /auth/change-password', () => {
     it('should return 401 if user is not authenticated', async () => {
       await testingApp.httpServer
         .request()
         .patch('/auth/change-password')
         .send({
           newPassword: 'NewPassword123!',
-          oldPassword: createUserDto.password,
+          currentPassword: createUserDto.password,
         })
         .expect(401);
+    });
+    it('should return 401 if invalid password', async () => {
+      await testingApp.httpServer
+        .request()
+        .patch('/auth/change-password')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          newPassword: 'NewPassword123!',
+          currentPassword: 'test',
+        });
     });
     it('should change user password', async () => {
       await testingApp.httpServer
