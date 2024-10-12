@@ -5,6 +5,7 @@ import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { ChangePasswordDto } from '@app/modules/auth/dtos/change-password.dto';
 import { AuthStrategy } from '@app/modules/auth/enums/auth-strategy.enum';
 import { CannotChangePasswordException } from '@app/modules/auth/exceptions/cannot-change-password.exception';
+import { IncorrectPasswordException } from '@app/modules/auth/exceptions/incorrect-password.exception';
 import { UserAlreadyExistsException } from '@app/modules/auth/exceptions/user-already-exists.exception';
 import { JwtPayload, JwtUser } from '@app/modules/auth/types/jwt.types';
 import { comparePasswords, hashPassword } from '@app/modules/auth/utils/password.utils';
@@ -14,7 +15,6 @@ import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dt
 import { CreateSocialUserDto } from '@app/modules/users/dtos/create-social-user.dto';
 import { UserDto } from '@app/modules/users/dtos/user.dto';
 import { UsersService } from '@app/modules/users/services/users.service';
-import { IncorrectPasswordException } from '@app/modules/auth/exceptions/incorrect-password.exception';
 
 @Injectable()
 export class AuthService {
