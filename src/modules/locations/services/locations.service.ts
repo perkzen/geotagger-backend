@@ -2,7 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CannotAccessResourceException } from '@app/common/exceptions/cannot-access-resource.exception';
 import { PaginationQuery } from '@app/common/pagination/pagination.query';
 import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
+import { GoogleMapsService } from '@app/modules/google/maps/google-maps.service';
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
+import { GeocodeQueryDto } from '@app/modules/locations/dtos/geocode-query.dto';
 import { UpdateLocationDto } from '@app/modules/locations/dtos/update-location.dto';
 import { CannotCreateLocationException } from '@app/modules/locations/exceptions/cannot-create-location.exception';
 import { CannotUpdateLocationException } from '@app/modules/locations/exceptions/cannot-update-location.exception';
@@ -19,6 +21,7 @@ export class LocationsService {
     private readonly locationsRepository: LocationsRepository,
     private readonly mediaService: MediaService,
     private readonly pointsService: PointsService,
+    private readonly googleMapsService: GoogleMapsService,
   ) {}
 
   async create(userId: string, dto: CreateLocationDto, image: Express.Multer.File) {
@@ -107,5 +110,18 @@ export class LocationsService {
       this.logger.log('Error updating location:', { userId, dto, error });
       throw new CannotUpdateLocationException();
     }
+  }
+
+  async geocode(data: GeocodeQueryDto) {
+    if (data.address) {
+      return this.googleMapsService.geocode({
+        type: 'address',
+        data: { address: data.address },
+      });
+    }
+    return this.googleMapsService.geocode({
+      type: 'coordinates',
+      data: { lat: data.lat, lng: data.lng },
+    });
   }
 }

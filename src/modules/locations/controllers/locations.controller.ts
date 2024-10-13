@@ -15,6 +15,7 @@ import { serializeToPaginationDto } from '@app/common/pagination/serializte-to-p
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { User } from '@app/modules/auth/decorators/user.decorator';
 import { CreateLocationDto, CreateLocationSwaggerDto } from '@app/modules/locations/dtos/create-location.dto';
+import { GeocodeQueryDto } from '@app/modules/locations/dtos/geocode-query.dto';
 import { LocationDetailsDto } from '@app/modules/locations/dtos/location-details.dto';
 import { LocationDto } from '@app/modules/locations/dtos/location.dto';
 import { UpdateLocationDto, UpdateLocationSwaggerDto } from '@app/modules/locations/dtos/update-location.dto';
@@ -29,6 +30,12 @@ import { MediaInterceptor } from '@app/modules/media/interceptors/media.intercep
 @Controller('locations')
 export class LocationsController {
   constructor(private readonly locationsService: LocationsService) {}
+
+  @Get('geocode')
+  @ApiOperation({ summary: 'Geocode address or coordinates' })
+  async geocode(@Query() query: GeocodeQueryDto) {
+    return this.locationsService.geocode(query);
+  }
 
   @Post()
   @UseInterceptors(FileInterceptor('image'))
