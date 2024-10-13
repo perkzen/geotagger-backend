@@ -6,14 +6,19 @@ import {
   ApiConsumes,
   ApiCookieAuth,
   ApiCreatedResponse,
+  ApiExtraModels,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
+  refs,
 } from '@nestjs/swagger';
 import { ApiOkPaginatedResponse } from '@app/common/decorators/api-ok-paginated-response.decorator';
 import { PaginationQuery } from '@app/common/pagination/pagination.query';
 import { serializeToPaginationDto } from '@app/common/pagination/serializte-to-pagniated-dto';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { User } from '@app/modules/auth/decorators/user.decorator';
+import { AddressDto } from '@app/modules/google/maps/dtos/address.dto';
+import { CoordinatesDto } from '@app/modules/google/maps/dtos/coordinates.dto';
 import { CreateLocationDto, CreateLocationSwaggerDto } from '@app/modules/locations/dtos/create-location.dto';
 import { GeocodeQueryDto } from '@app/modules/locations/dtos/geocode-query.dto';
 import { LocationDetailsDto } from '@app/modules/locations/dtos/location-details.dto';
@@ -33,6 +38,10 @@ export class LocationsController {
 
   @Get('geocode')
   @ApiOperation({ summary: 'Geocode address or coordinates' })
+  @ApiExtraModels(AddressDto, CoordinatesDto)
+  @ApiOkResponse({
+    schema: { anyOf: refs(AddressDto, CoordinatesDto) },
+  })
   async geocode(@Query() query: GeocodeQueryDto) {
     return this.locationsService.geocode(query);
   }
