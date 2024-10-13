@@ -63,6 +63,10 @@ export class MediaService {
     }
   }
 
+  /**
+   * Returns a signed URL for the media file.
+   * @param key
+   */
   async getMediaUrl(key: string): Promise<string> {
     return this.awsS3Service.getObjectUrl(key);
   }

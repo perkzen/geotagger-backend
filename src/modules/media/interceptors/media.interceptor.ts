@@ -37,10 +37,15 @@ export class MediaInterceptor implements NestInterceptor {
     for (const key of keys) {
       if (key === 'media' && obj[key]?.key) {
         obj.media.keyUrl = await this.mediaService.getMediaUrl(obj[key].key);
+
+        if (obj.hasOwnProperty('imageUrl')) {
+          obj.imageUrl = obj.media.keyUrl;
+        }
       } else if (typeof obj[key] === 'object') {
         await this.processObject(obj[key]);
       }
     }
+
     return obj;
   }
 }
