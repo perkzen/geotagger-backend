@@ -5,4 +5,8 @@ export class MediaDto {
   @ApiProperty()
   @Expose()
   key: string;
+
+  @ApiProperty()
+  @Expose()
+  keyUrl: string;
 }

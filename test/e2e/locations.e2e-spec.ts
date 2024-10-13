@@ -111,7 +111,7 @@ describe('Locations (e2e)', () => {
       expect(user.points).toBe(POINTS_PER_LOCATION_UPLOAD * 2);
 
       expect(res.status).toBe(201);
-      expect(res.body.media.keyUrl).toBe(imageUrl);
+      expect(res.body.imageUrl).toBe(imageUrl);
       expect(res.body.lat).toBe(location.lat);
       expect(res.body.lng).toBe(location.lng);
       expect(res.body.address).toBe(location.address);
@@ -175,7 +175,7 @@ describe('Locations (e2e)', () => {
 
       let res = await getLocation();
 
-      expect(res.body.media.keyUrl).toBe(imageUrl);
+      expect(res.body.imageUrl).toBe(imageUrl);
       expect(res.body.lat).toBe(location.lat);
       expect(res.body.lng).toBe(location.lng);
       expect(res.body.address).toBe(location.address);
@@ -204,7 +204,7 @@ describe('Locations (e2e)', () => {
         .expect(200);
 
       expect(locationsRes.body.data).toHaveLength(1);
-      expect(locationsRes.body.data?.[0].media.keyUrl).toBe(imageUrl);
+      expect(locationsRes.body.data?.[0].imageUrl).toBe(imageUrl);
       expect(locationsRes.body.data?.[0].lat).toBe(location.lat);
       expect(locationsRes.body.data?.[0].lng).toBe(location.lng);
       expect(locationsRes.body.data?.[0].address).toBe(location.address);
@@ -227,7 +227,7 @@ describe('Locations (e2e)', () => {
         .expect(200);
 
       expect(locationsRes.body.data).toHaveLength(1);
-      expect(locationsRes.body.data?.[0].media.keyUrl).toBe(imageUrl);
+      expect(locationsRes.body.data?.[0].imageUrl).toBe(imageUrl);
       expect(locationsRes.body.data?.[0].lat).toBe(location.lat);
       expect(locationsRes.body.data?.[0].lng).toBe(location.lng);
       expect(locationsRes.body.data?.[0].address).toBe(location.address);
@@ -356,7 +356,7 @@ describe('Locations (e2e)', () => {
       expect(updatedRes.body.lat).toBe(location.lat);
       expect(updatedRes.body.lng).toBe(location.lng);
       expect(updatedRes.body.address).toBe('updated address');
-      expect(updatedRes.body.media.keyUrl).toBe(imageUrl);
+      expect(updatedRes.body.imageUrl).toBe(imageUrl);
     });
   });
 });
