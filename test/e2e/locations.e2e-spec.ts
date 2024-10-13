@@ -359,4 +359,29 @@ describe('Locations (e2e)', () => {
       expect(updatedRes.body.imageUrl).toBe(imageUrl);
     });
   });
+
+  describe('GET /locations/geocode', () => {
+    it('should return 401 if user is not authenticated', async () => {
+      await testingApp.httpServer.request().get('/locations/geocode').expect(401);
+    });
+    it('should return coordinates by address', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .get('/locations/geocode?address=address')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(res.body).toHaveProperty('lat');
+      expect(res.body).toHaveProperty('lng');
+    });
+    it('should return address by coordinates', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .get('/locations/geocode?lat=51.5074&lng=0.1278')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(res.body).toHaveProperty('address');
+    });
+  });
 });
