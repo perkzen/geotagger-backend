@@ -1,10 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiCookieAuth,
   ApiCreatedResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -96,5 +97,14 @@ export class LocalAuthController {
   async refreshToken(@User() user: UserDto) {
     const tokens = await this.authService.refreshAccessToken(user);
     return serializeToDto(AuthTokensDto, tokens);
+  }
+
+  @Get('session')
+  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Get user session information' })
+  @ApiOkResponse({ type: UserDto })
+  async getSession(@User() user: UserDto) {
+    return serializeToDto(UserDto, user);
   }
 }
