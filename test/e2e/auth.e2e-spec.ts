@@ -13,6 +13,7 @@ describe('Auth (e2e)', () => {
 
   let accessToken: string;
   let refreshToken: string;
+  let userId: string;
 
   const createUserDto: CreateLocalUserDto = {
     email: faker.internet.email(),
@@ -43,7 +44,8 @@ describe('Auth (e2e)', () => {
 
     const authService = testingApp.app.get(AuthService);
 
-    await createUser(authService, accessTokenUser);
+    const { id } = await createUser(authService, accessTokenUser);
+    userId = id;
 
     const tokens = await getAccessTokens(authService, {
       email: accessTokenUser.email,
@@ -216,6 +218,25 @@ describe('Auth (e2e)', () => {
         .set('Cookie', `refreshToken=${refreshToken}`);
 
       expect(res.status).toBe(401);
+    });
+  });
+
+  describe('GET /auth/session', () => {
+    it('should return 401 if user is not authenticated', async () => {
+      const res = await testingApp.httpServer.request().get('/auth/session');
+      expect(res.status).toBe(401);
+    });
+    it('should return 200 if user is authenticated', async () => {
+      const res = await testingApp.httpServer
+        .request()
+        .get('/auth/session')
+        .set('Authorization', `Bearer ${accessToken}`);
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({
+        id: userId,
+        email: accessTokenUser.email,
+        role: 'user',
+      });
     });
   });
 });

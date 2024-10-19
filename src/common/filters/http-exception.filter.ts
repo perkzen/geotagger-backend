@@ -9,6 +9,9 @@ export class HttpExceptionFilter implements HttpExceptionFilter {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
 
+    const headers = ctx.getRequest().headers;
+    Logger.debug(`Request headers: ${JSON.stringify(headers)}`, 'HttpExceptionFilter');
+
     let httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
     let errorMessage: string | object = 'Internal server error';
     let errorCode: string = 'UNKNOWN_ERROR';
