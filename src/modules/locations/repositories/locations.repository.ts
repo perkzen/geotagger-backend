@@ -52,6 +52,7 @@ export class LocationsRepository {
             createdAt: true,
             user: {
               select: {
+                id: true,
                 firstname: true,
                 lastname: true,
                 imageUrl: true,
