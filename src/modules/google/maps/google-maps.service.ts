@@ -8,8 +8,8 @@ import { DistanceDto } from '@app/modules/google/maps/dtos/distance.dto';
 import { CannotCalculateDistanceException } from '@app/modules/google/maps/exceptions/cannot-calculate-distance.exception';
 import { CannotGeocodeAddressOrCoordinatesException } from '@app/modules/google/maps/exceptions/cannot-geocode-address-or-coordinates.exception';
 import { DistanceMatrixResponse } from '@app/modules/google/maps/types/distance-matrix-response.type';
-import { GeocodeOptions } from '@app/modules/google/maps/types/geocode-options.type';
 import { GeocodeResponse } from '@app/modules/google/maps/types/geocode-response.type';
+import { GeocodeOptions, GeocodeReturnType } from '@app/modules/google/maps/types/geocode.type';
 
 @Injectable()
 export class GoogleMapsService {
@@ -45,7 +45,7 @@ export class GoogleMapsService {
     return serializeToDto(DistanceDto, res.data);
   }
 
-  async geocode(options: GeocodeOptions) {
+  async geocode<T extends GeocodeOptions>(options: T): Promise<GeocodeReturnType<T>> {
     const params =
       options.type === 'address'
         ? { address: options.data.address }
@@ -64,9 +64,9 @@ export class GoogleMapsService {
     }
 
     if (options.type === 'address') {
-      return serializeToDto(CoordinatesDto, res.data.results[0].geometry.location);
+      return serializeToDto(CoordinatesDto, res.data.results[0].geometry.location) as GeocodeReturnType<T>;
     }
 
-    return serializeToDto(AddressDto, res.data.results[0]);
+    return serializeToDto(AddressDto, res.data.results[0]) as GeocodeReturnType<T>;
   }
 }

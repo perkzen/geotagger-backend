@@ -38,11 +38,17 @@ export class GuessService {
       { lat: location.lat, lng: location.lng },
     );
 
+    const { address } = await this.googleMapsService.geocode({
+      type: 'coordinates',
+      data: { lat: data.lat, lng: data.lng },
+    });
+
     return await this.guessRepository.create({
       userId,
       locationId,
       distance: distance.value,
       distanceText: distance.text,
+      address,
     });
   }
 

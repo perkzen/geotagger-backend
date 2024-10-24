@@ -63,6 +63,9 @@ export class LocationsRepository {
               },
             },
           },
+          orderBy: {
+            distance: 'asc',
+          },
         },
       },
     });
