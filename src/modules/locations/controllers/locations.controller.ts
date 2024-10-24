@@ -80,7 +80,7 @@ export class LocationsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Find location by id' })
-  @ApiCreatedResponse({ type: LocationDto })
+  @ApiCreatedResponse({ type: LocationDetailsDto })
   async getById(@Param('id') id: string) {
     const location = await this.locationsService.getLocationDetails(id);
     return serializeToDto(LocationDetailsDto, location);

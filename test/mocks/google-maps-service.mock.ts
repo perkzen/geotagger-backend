@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { DistanceDto } from '@app/modules/google/maps/dtos/distance.dto';
-import { GeocodeOptions } from '@app/modules/google/maps/types/geocode-options.type';
+import { GeocodeOptions, GeocodeReturnType } from '@app/modules/google/maps/types/geocode.type';
 
 export class GoogleMapsServiceMock {
   async calculateDistance(
@@ -20,16 +20,16 @@ export class GoogleMapsServiceMock {
     } as unknown as DistanceDto;
   }
 
-  async geocode(options?: GeocodeOptions) {
+  async geocode<T extends GeocodeOptions>(options: T): Promise<GeocodeReturnType<T>> {
     if (options?.type === 'address') {
       return {
         lat: faker.location.latitude(),
         lng: faker.location.longitude(),
-      };
+      } as unknown as GeocodeReturnType<T>;
     }
 
     return {
       address: faker.location.streetAddress(),
-    };
+    } as unknown as GeocodeReturnType<T>;
   }
 }

@@ -8,5 +8,5 @@ export class AddressDto {
     name: 'formatted_address',
   })
   @IsString()
-  formattedAddress: string;
+  address: string;
 }
