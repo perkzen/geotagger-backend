@@ -63,7 +63,7 @@ describe('Activity Log (e2e)', () => {
 
   describe('GET /activity-logs', () => {
     it('should return 401 if user is not authenticated', async () => {
-      const response = await testingApp.httpServer.request().get('/activity-logs').send();
+      const response = await testingApp.httpServer.request().get('/activity-logs?take=100&skip=0').send();
 
       expect(response.status).toBe(401);
     });
@@ -71,7 +71,7 @@ describe('Activity Log (e2e)', () => {
     it('should return 403 if user is not an admin', async () => {
       const response = await testingApp.httpServer
         .request()
-        .get('/activity-logs')
+        .get('/activity-logs?take=100&skip=0')
         .set('Authorization', `Bearer ${userAccessToken}`)
         .send();
 
@@ -81,18 +81,18 @@ describe('Activity Log (e2e)', () => {
     it('should return 200 if user is an admin', async () => {
       const response = await testingApp.httpServer
         .request()
-        .get('/activity-logs')
+        .get('/activity-logs?take=100&skip=0')
         .set('Authorization', `Bearer ${adminAccessToken}`)
         .send();
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual([]);
+      expect(response.body.data).toEqual([]);
     });
     it("should return 100 activity logs if they're available", async () => {
       for (let i = 0; i < 101; i++) {
         await testingApp.httpServer
           .request()
-          .post('/activity-logs')
+          .post('/activity-logs?take=100&skip=0')
           .set('Authorization', `Bearer ${userAccessToken}`)
           .send({
             action: 'click',
@@ -104,17 +104,17 @@ describe('Activity Log (e2e)', () => {
 
       const response = await testingApp.httpServer
         .request()
-        .get('/activity-logs')
+        .get('/activity-logs?take=100&skip=0')
         .set('Authorization', `Bearer ${adminAccessToken}`)
         .send();
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBeGreaterThanOrEqual(0);
+      expect(response.body.data.length).toBeGreaterThanOrEqual(0);
     });
   });
   describe('POST /activity-logs', () => {
     it('should return 401 if user is not authenticated', async () => {
-      const response = await testingApp.httpServer.request().post('/activity-logs').send();
+      const response = await testingApp.httpServer.request().post('/activity-logs?take=100&skip=0').send();
 
       expect(response.status).toBe(401);
     });
@@ -122,7 +122,7 @@ describe('Activity Log (e2e)', () => {
     it('should return 200 if user is authenticated', async () => {
       const response = await testingApp.httpServer
         .request()
-        .post('/activity-logs')
+        .post('/activity-logs?take=100&skip=0')
         .set('Authorization', `Bearer ${userAccessToken}`)
         .send({
           action: 'click',
