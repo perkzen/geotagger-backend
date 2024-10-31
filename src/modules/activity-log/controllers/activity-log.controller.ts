@@ -1,9 +1,11 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { Body, Controller, Get, Logger, Post, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Logger, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ApiBearerAuth, ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Queue } from 'bullmq';
-import { serializeToDto } from '@app/common/utils/serialize-to-dto';
+import { ApiOkPaginatedResponse } from '@app/common/decorators/api-ok-paginated-response.decorator';
+import { PaginationQuery } from '@app/common/pagination/pagination.query';
+import { serializeToPaginationDto } from '@app/common/pagination/serializte-to-pagniated-dto';
 import { ActivityLogDto } from '@app/modules/activity-log/dtos/activity-log.dto';
 import { CreateActivityLogDto } from '@app/modules/activity-log/dtos/create-activity-log.dto';
 import { JobName } from '@app/modules/activity-log/enums/job-name.enum';
@@ -44,10 +46,10 @@ export class ActivityLogController {
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
   @UseInterceptors(MediaInterceptor)
-  @ApiOperation({ summary: 'Get activity log for last 100 actions' })
-  @ApiOkResponse({ type: ActivityLogDto, isArray: true })
-  async getLogs() {
-    const data = await this.activityLogService.getLogs();
-    return serializeToDto(ActivityLogDto, data);
+  @ApiOperation({ summary: 'Get activity log' })
+  @ApiOkPaginatedResponse(ActivityLogDto)
+  async getLogs(@Query() query: PaginationQuery) {
+    const data = await this.activityLogService.getLogs(query);
+    return serializeToPaginationDto(ActivityLogDto, data);
   }
 }

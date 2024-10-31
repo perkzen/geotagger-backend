@@ -15,6 +15,7 @@ export class CreateActivityLogDto {
     enum: ComponentType,
   })
   @Expose()
+  @IsOptional()
   @IsEnum(ComponentType)
   componentType: ComponentType | null;
 
