@@ -66,6 +66,7 @@ export class LocationsRepository {
           orderBy: {
             distance: 'asc',
           },
+          take: 10,
         },
       },
     });
