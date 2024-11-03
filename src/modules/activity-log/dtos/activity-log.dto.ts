@@ -15,6 +15,10 @@ class User {
 
   @ApiProperty()
   @Expose()
+  imageUrl: string | null;
+
+  @ApiProperty()
+  @Expose()
   @Type(() => MediaDto)
   media: MediaDto | null;
 }

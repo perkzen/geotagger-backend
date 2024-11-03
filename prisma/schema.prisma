@@ -83,7 +83,7 @@ enum Action {
   click
   scroll
   added_value
-  changeed_value
+  changed_value
   removed_value
 }
 

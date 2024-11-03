@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { PaginationQuery } from '@app/common/pagination/pagination.query';
 import { PrismaService } from '@app/modules/db/prisma.service';
 
 @Injectable()
@@ -16,11 +17,8 @@ export class ActivityLogRepository {
     });
   }
 
-  /**
-   * Retrieves last 100 activity logs
-   */
-  async findMany() {
-    return this.activityLog.findMany({
+  async findManyWithPagination({ take, skip }: PaginationQuery) {
+    const query: Prisma.ActivityLogFindManyArgs = {
       orderBy: {
         createdAt: 'desc',
       },
@@ -38,7 +36,14 @@ export class ActivityLogRepository {
           },
         },
       },
-      take: 100,
-    });
+      take,
+      skip,
+    };
+
+    type ActivityLogWithUser = Prisma.ActivityLogGetPayload<typeof query>;
+
+    return this.db.$transaction([this.activityLog.findMany(query), this.activityLog.count()]) as Promise<
+      [ActivityLogWithUser[], number]
+    >;
   }
 }

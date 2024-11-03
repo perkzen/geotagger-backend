@@ -3,6 +3,7 @@ import { CannotAccessResourceException } from '@app/common/exceptions/cannot-acc
 import { PaginationQuery } from '@app/common/pagination/pagination.query';
 import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
 import { GoogleMapsService } from '@app/modules/google/maps/google-maps.service';
+import { GeocodeOptions } from '@app/modules/google/maps/types/geocode.type';
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
 import { GeocodeQueryDto } from '@app/modules/locations/dtos/geocode-query.dto';
 import { UpdateLocationDto } from '@app/modules/locations/dtos/update-location.dto';
@@ -113,15 +114,16 @@ export class LocationsService {
   }
 
   async geocode(data: GeocodeQueryDto) {
-    if (data.address) {
-      return this.googleMapsService.geocode({
-        type: 'address',
-        data: { address: data.address },
-      });
-    }
-    return this.googleMapsService.geocode({
-      type: 'coordinates',
-      data: { lat: data.lat, lng: data.lng },
-    });
+    const payload: GeocodeOptions = data.address
+      ? {
+          type: 'address',
+          data: { address: data.address },
+        }
+      : {
+          type: 'coordinates',
+          data: { lat: data.lat, lng: data.lng },
+        };
+
+    return this.googleMapsService.geocode(payload);
   }
 }
