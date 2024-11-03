@@ -8,7 +8,6 @@ import { PaginationQuery } from '@app/common/pagination/pagination.query';
 import { serializeToPaginationDto } from '@app/common/pagination/serializte-to-pagniated-dto';
 import { ActivityLogDto } from '@app/modules/activity-log/dtos/activity-log.dto';
 import { CreateActivityLogDto } from '@app/modules/activity-log/dtos/create-activity-log.dto';
-import { JobName } from '@app/modules/activity-log/enums/job-name.enum';
 import { ProcessActivityLogPayload } from '@app/modules/activity-log/interfaces/process-activity-log-payload.interface';
 import { ActivityLogService } from '@app/modules/activity-log/services/activity-log.service';
 import { Roles } from '@app/modules/auth/decorators/role.decorator';
@@ -16,6 +15,7 @@ import { User } from '@app/modules/auth/decorators/user.decorator';
 import { Role } from '@app/modules/auth/enums/role.enum';
 import { RolesGuard } from '@app/modules/auth/guards/roles.guard';
 import { MediaInterceptor } from '@app/modules/media/interceptors/media.interceptor';
+import { JobName } from '@app/modules/queue/enums/job-name.enum';
 import { QueueName } from '@app/modules/queue/enums/queue-name.enum';
 
 @ApiTags('Activity Log')

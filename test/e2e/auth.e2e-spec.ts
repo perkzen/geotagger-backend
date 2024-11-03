@@ -1,8 +1,14 @@
 import { faker } from '@faker-js/faker';
+import { getQueueToken } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { REFRESH_TOKEN_COOKIE_NAME } from '@app/modules/auth/constants/auth.constants';
 import { LoginDto } from '@app/modules/auth/dtos/login.dto';
 import { AuthService } from '@app/modules/auth/services/auth.service';
+import { EmailTemplate } from '@app/modules/email/enums/email-template.enum';
+import { ProcessEmailPayload } from '@app/modules/email/interfaces/process-email-payload.interface';
 import { EMAIL_CLIENT } from '@app/modules/email/utils/email.constants';
+import { JobName } from '@app/modules/queue/enums/job-name.enum';
+import { QueueName } from '@app/modules/queue/enums/queue-name.enum';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
 import { EmailClientMock } from '@test/mocks/email-client.mock';
@@ -14,6 +20,7 @@ describe('Auth (e2e)', () => {
   let accessToken: string;
   let refreshToken: string;
   let userId: string;
+  let emailQueue: Queue<ProcessEmailPayload>;
 
   const createUserDto: CreateLocalUserDto = {
     email: faker.internet.email(),
@@ -34,8 +41,6 @@ describe('Auth (e2e)', () => {
     password: createUserDto.password,
   };
 
-  const sendEmailSpy = jest.spyOn(EmailClientMock.prototype, 'sendEmail');
-
   beforeAll(async () => {
     testingApp = new TestAppBootstrap();
     await testingApp.compile({
@@ -43,6 +48,7 @@ describe('Auth (e2e)', () => {
     });
 
     const authService = testingApp.app.get(AuthService);
+    emailQueue = testingApp.app.get(getQueueToken(QueueName.EMAIL));
 
     const { id } = await createUser(authService, accessTokenUser);
     userId = id;
@@ -139,22 +145,35 @@ describe('Auth (e2e)', () => {
       expect(res.status).toBe(400);
     });
     it("should return status 201 if email doesn't exist", async () => {
+      const queueAddSpy = jest.spyOn(emailQueue, 'add');
+
       const res = await testingApp.httpServer
         .request()
         .post('/auth/reset-password')
         .send({ email: faker.internet.email() });
 
       expect(res.status).toBe(201);
-      expect(sendEmailSpy).toHaveBeenCalledTimes(0);
+      expect(queueAddSpy).toHaveBeenCalledTimes(0);
     });
     it('should return status 201 and call sendEmail', async () => {
+      const queueAddSpy = jest.spyOn(emailQueue, 'add');
+
       const res = await testingApp.httpServer
         .request()
         .post('/auth/reset-password')
         .send({ email: accessTokenUser.email });
 
       expect(res.status).toBe(201);
-      expect(sendEmailSpy).toHaveBeenCalledTimes(1);
+      expect(queueAddSpy).toHaveBeenCalledWith(JobName.PROCESS_EMAIL, {
+        recipient: accessTokenUser.email,
+        subject: 'Reset your password',
+        template: EmailTemplate.RESET_PASSWORD,
+        data: {
+          name: accessTokenUser.firstname,
+          link: expect.any(String),
+        },
+      });
+      expect(queueAddSpy).toHaveBeenCalledTimes(1);
     });
   });
   describe('POST /auth/reset-password/:token', () => {
