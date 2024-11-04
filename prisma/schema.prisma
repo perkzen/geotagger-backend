@@ -27,6 +27,7 @@ model User {
   imageUrl  String?
   points    Int           @default(0)
   createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
   provider  Provider      @default(local)
   role      Role          @default(user)
   mediaId   String?       @unique
@@ -44,6 +45,7 @@ model Media {
   key       String     @unique
   filename  String
   createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   locations Location[]
   users     User[]
 
@@ -56,6 +58,7 @@ model Location {
   lat       Float
   lng       Float
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   mediaId   String   @unique

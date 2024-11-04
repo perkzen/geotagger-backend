@@ -3,6 +3,9 @@ import { Media } from '@prisma/client';
 import { MimeType } from '@app/common/enums/mime-type.enum';
 import { AwsS3Service } from '@app/modules/aws/s3/aws-s3.service';
 import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
+import { CreateUploadUrlDto } from '@app/modules/media/dtos/create-upload-url.dto';
+import { MissingMetadataException } from '@app/modules/media/exceptions/missing-metadata.exception';
+import { ProcessMediaPayload } from '@app/modules/media/interfaces/process-media-payload.interface';
 import { MediaRepository } from '@app/modules/media/repositories/media.repository';
 import { sanitizeFilename } from '@app/modules/media/utils/sanitize-filename';
 
@@ -11,7 +14,7 @@ export class MediaService {
   private readonly logger = new Logger(MediaService.name);
 
   constructor(
-    private readonly awsS3Service: AwsS3Service,
+    private readonly s3: AwsS3Service,
     private readonly mediaRepository: MediaRepository,
   ) {}
 
@@ -27,7 +30,7 @@ export class MediaService {
     const filename = sanitizeFilename(file.originalname);
     const key = `${bucketPath}/${filename}`;
 
-    const objectKey = await this.awsS3Service.putObject(key, file.buffer, file.mimetype);
+    const objectKey = await this.s3.putObject(key, file.buffer, file.mimetype);
 
     const media = this.mediaRepository.createOrUpdate({
       key: objectKey,
@@ -46,14 +49,12 @@ export class MediaService {
     try {
       return await this.mediaRepository.transaction(async (db) => {
         const media = await this.mediaRepository.findOneOrFail(mediaId);
-        await this.awsS3Service.deleteObject(media.key);
-
         await db.media.delete({
           where: {
             id: mediaId,
           },
         });
-
+        await this.s3.deleteObject(media.key);
         this.logger.log(`Media (${mediaId}) deleted from database and S3 storage`);
         return true;
       });
@@ -68,7 +69,7 @@ export class MediaService {
    * @param key
    */
   async getMediaUrl(key: string): Promise<string> {
-    return this.awsS3Service.getObjectUrl(key);
+    return this.s3.getObjectUrl(key);
   }
 
   /**
@@ -77,13 +78,104 @@ export class MediaService {
    * You need to implement file validation in S3 bucket rules to
    * prevent malicious files from being uploaded.
    *
-   *
    */
-  async getUploadUrl(originalFilename: string, bucketPath: BucketPath, mimeType: MimeType): Promise<string> {
+  async getUploadUrl({ originalFilename, bucketPath, mimeType, ownerId }: CreateUploadUrlDto): Promise<string> {
     const filename = sanitizeFilename(originalFilename);
 
     const key = `${bucketPath}/${filename}`;
 
-    return this.awsS3Service.getUploadUrl(key, mimeType);
+    return this.s3.getUploadUrl(ownerId, { key, mimeType, bucketPath });
+  }
+
+  async processUpload({ key }: ProcessMediaPayload) {
+    const object = await this.s3.getObject(key);
+    const filename = key.split('/').pop();
+    const mimeType = `image/${filename.split('.')?.pop() ?? '*'} ` as MimeType;
+    const ownerId = object.Metadata['ownerid'];
+    const bucketPath = object.Metadata['bucketpath'] as BucketPath;
+
+    if (!ownerId) {
+      throw new MissingMetadataException('ownerid');
+    }
+
+    if (!bucketPath) {
+      throw new MissingMetadataException('bucketpath');
+    }
+
+    if (bucketPath === BucketPath.PROFILE_IMAGES) {
+      await this.mediaRepository.transaction(async (tx) => {
+        const user = await tx.user.findUniqueOrThrow({
+          where: {
+            id: ownerId,
+          },
+          include: {
+            media: true,
+          },
+        });
+
+        const mediaId = user.media?.id;
+
+        if (mediaId) {
+          await tx.media.delete({
+            where: {
+              id: mediaId,
+            },
+          });
+
+          await this.s3.deleteObject(user.media.key);
+        }
+
+        const newMedia = await this.mediaRepository.create({
+          key,
+          mimeType,
+          filename,
+        });
+
+        await tx.user.update({
+          where: {
+            id: ownerId,
+          },
+          data: {
+            mediaId: newMedia.id,
+          },
+        });
+      });
+    }
+
+    if (bucketPath === BucketPath.LOCATIONS_IMAGES) {
+      await this.mediaRepository.transaction(async (tx) => {
+        const location = await tx.location.findUniqueOrThrow({
+          where: {
+            id: ownerId,
+          },
+          include: {
+            media: true,
+          },
+        });
+
+        const newMedia = await this.mediaRepository.create({
+          key,
+          mimeType,
+          filename,
+        });
+
+        await tx.location.update({
+          where: {
+            id: ownerId,
+          },
+          data: {
+            mediaId: newMedia.id,
+          },
+        });
+
+        await tx.media.delete({
+          where: {
+            id: location.mediaId,
+          },
+        });
+
+        await this.s3.deleteObject(location.media.key);
+      });
+    }
   }
 }

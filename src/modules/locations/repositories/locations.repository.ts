@@ -52,6 +52,7 @@ export class LocationsRepository {
             createdAt: true,
             user: {
               select: {
+                id: true,
                 firstname: true,
                 lastname: true,
                 imageUrl: true,
@@ -87,17 +88,12 @@ export class LocationsRepository {
       skip,
     };
 
+    type LocationWithMedia = Prisma.LocationGetPayload<typeof query>;
+
     return this.db.$transaction([
       this.location.findMany(query),
       this.location.count({ where: query.where }),
-    ]) as Promise<
-      [
-        (Location & {
-          media: Media;
-        })[],
-        number,
-      ]
-    >;
+    ]) as Promise<[LocationWithMedia[], number]>;
   }
 
   async findManyWithPagination({ take, skip }: PaginationQuery) {
@@ -112,13 +108,10 @@ export class LocationsRepository {
       skip,
     };
 
+    type LocationWithMedia = Prisma.LocationGetPayload<typeof query>;
+
     return this.db.$transaction([this.location.findMany(query), this.location.count()]) as Promise<
-      [
-        (Location & {
-          media: Media;
-        })[],
-        number,
-      ]
+      [LocationWithMedia[], number]
     >;
   }
 
