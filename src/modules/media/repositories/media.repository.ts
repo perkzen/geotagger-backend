@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
 import { PrismaService } from '@app/modules/db/prisma.service';
 import { CreateMediaDto } from '@app/modules/media/dtos/create-media.dto';
 
 @Injectable()
 export class MediaRepository {
   private readonly media: PrismaService['media'];
-  private readonly user: PrismaService['user'];
 
   constructor(private readonly db: PrismaService) {
     this.media = this.db.media;

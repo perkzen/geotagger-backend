@@ -1,11 +1,10 @@
 import { HttpService } from '@nestjs/axios';
 import { InjectQueue } from '@nestjs/bullmq';
-import { Body, Controller, InternalServerErrorException, Post, Res } from '@nestjs/common';
+import { Body, Controller, InternalServerErrorException, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiCookieAuth, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Queue } from 'bullmq';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { Public } from '@app/modules/auth/decorators/public.decorator';
-import { User } from '@app/modules/auth/decorators/user.decorator';
 import { S3Notification, SnsNotificationEvent } from '@app/modules/aws/sns/types/sns-notification-event';
 import { CreateUploadUrlDto } from '@app/modules/media/dtos/create-upload-url.dto';
 import { UrlDto } from '@app/modules/media/dtos/url.dto';
