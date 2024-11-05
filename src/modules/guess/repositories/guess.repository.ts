@@ -11,18 +11,10 @@ export class GuessRepository {
     this.guess = this.db.guess;
   }
 
-  async create(data: Prisma.GuessUncheckedCreateInput) {
-    return this.guess.create({
+  async create(data: Prisma.GuessUncheckedCreateInput, tx?: Prisma.TransactionClient) {
+    const db = tx || this.db;
+    return db.guess.create({
       data,
-    });
-  }
-
-  async exists(userId: string, locationId: string) {
-    return this.guess.findFirst({
-      where: {
-        userId,
-        locationId,
-      },
     });
   }
 
@@ -77,5 +69,9 @@ export class GuessRepository {
         locationId,
       },
     });
+  }
+
+  async transaction<T>(fn: (db: Prisma.TransactionClient) => Promise<T>) {
+    return this.db.$transaction(fn);
   }
 }

@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { Prisma, User } from '@prisma/client';
-import { BucketPath } from '@app/modules/aws/s3/enums/bucket-path.enum';
+import { MediaEventName } from '@app/modules/media/enums/media-event-name.enum';
+import { MediaUploadedEvent } from '@app/modules/media/events/media-uploaded.event';
 import { MediaService } from '@app/modules/media/services/media.service';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { CreateSocialUserDto } from '@app/modules/users/dtos/create-social-user.dto';
@@ -54,28 +56,40 @@ export class UsersService {
     await this.usersRepository.update(userId, { password: newPassword });
   }
 
-  async updateProfileImage(userId: string, image?: Express.Multer.File) {
-    const user = await this.usersRepository.findOne(userId, { media: true });
-
-    if (!user) {
-      throw new UserNotFoundException();
-    }
-
-    const oldMediaId = user.media?.id;
-
-    if (oldMediaId) {
-      await this.mediaService.deleteMedia(oldMediaId);
-    }
-
-    if (image) {
-      const media = await this.mediaService.uploadMedia(image, BucketPath.PROFILE_IMAGES);
-      await this.usersRepository.updateMedia(userId, media.id);
-    }
-
-    return this.findById(userId, { media: true });
-  }
-
   async updateProfile(userId: string, data: UpdateUserDto) {
     return this.usersRepository.update(userId, data);
+  }
+
+  @OnEvent(MediaEventName.PROFILE_IMAGE_UPLOADED)
+  async updateProfileImage({ payload }: MediaUploadedEvent) {
+    const { ownerId, key, mimeType, filename } = payload;
+
+    await this.usersRepository.transaction(async (tx) => {
+      const user = await tx.user.findUniqueOrThrow({
+        where: {
+          id: ownerId,
+        },
+        include: {
+          media: true,
+        },
+      });
+
+      const mediaId = user.media?.id;
+
+      if (mediaId) {
+        await this.mediaService.delete(mediaId, tx);
+      }
+
+      const newMedia = await this.mediaService.create({ key, mimeType, filename }, tx);
+
+      await tx.user.update({
+        where: {
+          id: ownerId,
+        },
+        data: {
+          mediaId: newMedia.id,
+        },
+      });
+    });
   }
 }

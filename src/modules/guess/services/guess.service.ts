@@ -28,8 +28,6 @@ export class GuessService {
 
     const count = await this.guessRepository.guessCount(userId, locationId);
 
-    await this.pointsService.decrementPoints(userId, count);
-
     const { distance } = await this.googleMapsService.calculateDistance(
       {
         lat: data.lat,
@@ -43,12 +41,18 @@ export class GuessService {
       data: { lat: data.lat, lng: data.lng },
     });
 
-    return await this.guessRepository.create({
-      userId,
-      locationId,
-      distance: distance.value,
-      distanceText: distance.text,
-      address,
+    return await this.guessRepository.transaction(async (tx) => {
+      await this.pointsService.decrementPoints(userId, count, tx);
+      return await this.guessRepository.create(
+        {
+          userId,
+          locationId,
+          distance: distance.value,
+          distanceText: distance.text,
+          address,
+        },
+        tx,
+      );
     });
   }
 
