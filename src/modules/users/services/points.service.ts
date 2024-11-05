@@ -39,16 +39,16 @@ export class PointsService {
    * @param guesses
    * @param tx
    */
-  async decrementPoints(userId: string, guesses: number, tx?: Prisma.TransactionClient) {
+  async decrementPointsOnGuess(userId: string, guesses: number, tx?: Prisma.TransactionClient) {
     switch (guesses) {
       case 0:
-        await this._decrementPoints(userId, POINTS_LOST_FIRST_GUESS, tx);
+        await this.decrementPoints(userId, POINTS_LOST_FIRST_GUESS, tx);
         break;
       case 1:
-        await this._decrementPoints(userId, POINTS_LOST_SECOND_GUESS);
+        await this.decrementPoints(userId, POINTS_LOST_SECOND_GUESS);
         break;
       default:
-        await this._decrementPoints(userId, POINTS_LOST_THIRD_AND_SUBSEQUENT_GUESSES);
+        await this.decrementPoints(userId, POINTS_LOST_THIRD_AND_SUBSEQUENT_GUESSES);
     }
   }
 
@@ -56,7 +56,7 @@ export class PointsService {
     await this.usersRepository.incrementPoints(userId, points, tx);
   }
 
-  private async _decrementPoints(userId: string, points: number, tx?: Prisma.TransactionClient) {
+  async decrementPoints(userId: string, points: number, tx?: Prisma.TransactionClient) {
     const user = await this.usersService.findById(userId);
 
     if (user.points < points) {

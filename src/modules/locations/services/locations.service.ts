@@ -94,7 +94,7 @@ export class LocationsService {
 
       await tx.location.delete({ where: { id } });
       await this.mediaService.delete(location.mediaId, tx);
-      await this.pointsService.decrementPoints(userId, 1, tx);
+      await this.pointsService.decrementPoints(userId, POINTS_PER_LOCATION_UPLOAD, tx);
     });
   }
 

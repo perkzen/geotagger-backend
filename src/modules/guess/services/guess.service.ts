@@ -42,7 +42,7 @@ export class GuessService {
     });
 
     return await this.guessRepository.transaction(async (tx) => {
-      await this.pointsService.decrementPoints(userId, count, tx);
+      await this.pointsService.decrementPointsOnGuess(userId, count, tx);
       return await this.guessRepository.create(
         {
           userId,
