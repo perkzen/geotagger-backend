@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 COPY . .
 
 # clean install
-RUN npm ci
+RUN npm install
 
 # Generate Prisma client
 RUN npx prisma generate
@@ -14,7 +14,7 @@ RUN npx prisma generate
 # Build the application
 RUN npm run build
 
-FROM node:20.11-alpine as runner
+FROM node:20.11-alpine AS runner
 
 WORKDIR /usr/src/app
 
