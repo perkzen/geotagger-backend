@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:20.11-alpine AS builder
+FROM node:20.11-alpine AS builder
 
 WORKDIR /usr/src/app
 
@@ -14,7 +14,7 @@ RUN npx prisma generate
 # Build the application
 RUN npm run build
 
-FROM --platform=linux/amd64 node:20.11-alpine as runner
+FROM node:20.11-alpine as runner
 
 WORKDIR /usr/src/app
 
