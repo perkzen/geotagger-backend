@@ -2,19 +2,16 @@ FROM node:22.11-alpine AS builder
 
 WORKDIR /usr/src/app
 
-# Copy complete project
+# Copy only package.json and package-lock.json
 COPY . .
 
-# clean install
+# Install Prisma dependencies
 RUN npm install
-
-# Generate Prisma client
-RUN npx prisma generate
 
 # Build the application
 RUN npm run build
 
-FROM node:22.11-alpine AS runner
+FROM node:22.11-alpine as runner
 
 WORKDIR /usr/src/app
 
@@ -28,7 +25,6 @@ COPY --from=builder /usr/src/app/prisma ./prisma
 
 # Install only production dependencies
 RUN npm install --omit=dev
-RUN npx prisma generate
 
 # Switch to the non-root user
 USER nodejs
@@ -39,4 +35,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD curl -
 EXPOSE ${PORT}
 
 # Start your application
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "dist/main.js"]
