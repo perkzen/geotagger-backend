@@ -30,6 +30,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Set up QEMU for arm64
+        run: |
+            docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+        if: runner.os == 'Linux'
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -53,5 +58,7 @@ jobs:
           
           ECR_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           
-          docker build --build-arg PLATFORM=linux/arm64 -t $ECR_URI .
-          docker push $ECR_URI
+          docker buildx create --use
+          docker buildx inspect --bootstrap
+          
+          docker buildx build --platform linux/arm64 -t $ECR_URI --push .
