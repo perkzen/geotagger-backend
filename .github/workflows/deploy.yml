@@ -1,11 +1,27 @@
 name: Build and deploy to ECS
 
 on:
+  workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        description: 'AWS Access Key ID'
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        description: 'AWS Secret Access Key'
+        required: true
+    inputs:
+      tag:
+        description: 'Docker image tag'
+        required: true
+        default: 'latest'
+        type: string
+
   push:
     tags:
       - 'v*.*.*'
     branches:
       - main
+
 
 jobs:
   deploy:
