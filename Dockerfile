@@ -5,9 +5,8 @@ WORKDIR /usr/src/app
 # Copy complete project
 COPY . .
 
-# Install Prisma dependencies
-RUN npm cache clean --force
-RUN npm install
+# clean install
+RUN npm ci
 
 # Generate Prisma client
 RUN npx prisma generate
