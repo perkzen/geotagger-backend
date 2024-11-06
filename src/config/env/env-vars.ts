@@ -9,8 +9,7 @@ export const environmentVariablesSchema = z.object({
 
   DATABASE_URL: z.string(),
 
-  REDIS_HOST: z.string(),
-  REDIS_PORT: z.coerce.number().int().positive(),
+  REDIS_URL: z.string().url(),
 
   BULL_BOARD_USERNAME: z.string().optional(),
   BULL_BOARD_PASSWORD: z.string().optional(),
