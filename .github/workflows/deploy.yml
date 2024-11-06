@@ -36,19 +36,6 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-          #      - name: Build, Tag, and Push Docker Image to Amazon ECR
-          #        env:
-          #          IMAGE_TAG: ${{ inputs.tag }}
-          #        run: |
-          #          IMAGE_TAG=${IMAGE_TAG:-latest}
-          #
-          #          ECR_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REGISTRY }}:$IMAGE_TAG"
-          #
-          #          docker buildx create --use
-          #          docker buildx inspect --bootstrap
-        #
-        #          docker buildx build --platform linux/arm64 -t $ECR_URI --push .
-
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         uses: docker/build-push-action@v5
@@ -66,7 +53,7 @@ jobs:
           aws ecs describe-task-definition \
           --task-definition ${{ secrets.ECS_TASK_DEFINITION }} \
           --query taskDefinition \
-          --region ${{ vars.AWS_REGION }} > ../../task-definition.json
+          --region ${{ vars.AWS_REGION }} > task-definition.json
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
