@@ -11,7 +11,7 @@ RUN npm install
 # Build the application
 RUN npm run build
 
-FROM node:22.11-alpine as runner
+FROM node:22.11-alpine AS runner
 
 WORKDIR /usr/src/app
 
