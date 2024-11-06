@@ -1,18 +1,7 @@
 import { Body, Controller, Get, Patch, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiConsumes,
-  ApiCookieAuth,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { User } from '@app/modules/auth/decorators/user.decorator';
-import { UploadedImage } from '@app/modules/media/decorators/uploaded-image.decorator';
-import { ImageDto } from '@app/modules/media/dtos/image.dto';
 import { MediaInterceptor } from '@app/modules/media/interceptors/media.interceptor';
 import { UpdateUserDto } from '@app/modules/users/dtos/update-user.dto';
 import { UserProfileDto } from '@app/modules/users/dtos/user-profile.dto';
@@ -39,16 +28,6 @@ export class ProfileController {
   @ApiOkResponse({ type: UserProfileDto })
   async updateProfile(@User('id') userId: string, @Body() dto: UpdateUserDto) {
     const user = await this.usersService.updateProfile(userId, dto);
-    return serializeToDto(UserProfileDto, user);
-  }
-
-  @Patch('image')
-  @UseInterceptors(FileInterceptor('image'))
-  @ApiOperation({ summary: 'Change user profile picture' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({ type: ImageDto, required: false })
-  async changeProfilePicture(@User('id') userId: string, @UploadedImage(false) image?: Express.Multer.File) {
-    const user = await this.usersService.updateProfileImage(userId, image);
     return serializeToDto(UserProfileDto, user);
   }
 }

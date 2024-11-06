@@ -13,6 +13,8 @@ import { JwtStrategy } from '@app/modules/auth/stragegies/jwt.strategy';
 import { LocalStrategy } from '@app/modules/auth/stragegies/local.strategy';
 import { RefreshTokenStrategy } from '@app/modules/auth/stragegies/refresh-token.strategy';
 import { EmailModule } from '@app/modules/email/email.module';
+import { QueueName } from '@app/modules/queue/enums/queue-name.enum';
+import { configureQueue } from '@app/modules/queue/utils/configure-queue';
 import { UsersModule } from '@app/modules/users/users.module';
 
 @Module({
@@ -28,6 +30,7 @@ import { UsersModule } from '@app/modules/users/users.module';
         signOptions: { expiresIn: configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') },
       }),
     }),
+    ...configureQueue([QueueName.EMAIL]),
   ],
   controllers: [LocalAuthController, SocialsAuthController],
   providers: [

@@ -7,6 +7,11 @@ class UserDto {
   @ApiProperty()
   @Expose()
   @IsString()
+  id: string;
+
+  @ApiProperty()
+  @Expose()
+  @IsString()
   firstname: string;
 
   @ApiProperty()

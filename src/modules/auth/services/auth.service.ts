@@ -1,6 +1,8 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Queue } from 'bullmq';
 import { serializeToDto } from '@app/common/utils/serialize-to-dto';
 import { ChangePasswordDto } from '@app/modules/auth/dtos/change-password.dto';
 import { AuthStrategy } from '@app/modules/auth/enums/auth-strategy.enum';
@@ -10,7 +12,9 @@ import { UserAlreadyExistsException } from '@app/modules/auth/exceptions/user-al
 import { JwtPayload, JwtUser } from '@app/modules/auth/types/jwt.types';
 import { comparePasswords, hashPassword } from '@app/modules/auth/utils/password.utils';
 import { EmailTemplate } from '@app/modules/email/enums/email-template.enum';
-import { EmailService } from '@app/modules/email/services/email.service';
+import { ProcessEmailPayload } from '@app/modules/email/interfaces/process-email-payload.interface';
+import { JobName } from '@app/modules/queue/enums/job-name.enum';
+import { QueueName } from '@app/modules/queue/enums/queue-name.enum';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { CreateSocialUserDto } from '@app/modules/users/dtos/create-social-user.dto';
 import { UserDto } from '@app/modules/users/dtos/user.dto';
@@ -23,8 +27,8 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly emailService: EmailService,
     private readonly configService: ConfigService,
+    @InjectQueue(QueueName.EMAIL) private readonly emailQueue: Queue<ProcessEmailPayload>,
   ) {}
 
   async validateLocalUser(email: string, password: string) {
@@ -107,12 +111,17 @@ export class AuthService {
     const token = await this.jwtService.signAsync({ sub: payload }, { expiresIn: '15m' });
 
     try {
-      await this.emailService.sendEmail(user.email, 'Reset your password', EmailTemplate.RESET_PASSWORD, {
-        name: user.firstname,
-        link: `${this.configService.getOrThrow('FRONTEND_URL')}/reset-password?token=${token}`,
+      await this.emailQueue.add(JobName.PROCESS_EMAIL, {
+        recipient: user.email,
+        subject: 'Reset your password',
+        template: EmailTemplate.RESET_PASSWORD,
+        data: {
+          name: user.firstname,
+          link: `${this.configService.getOrThrow('FRONTEND_URL')}/reset-password?token=${token}`,
+        },
       });
 
-      this.logger.log(`Sent forgot password email to ${user.email}`);
+      this.logger.log(`Reset password email was sent to queue for user with email ${user.email}`);
     } catch (err) {
       this.logger.error(`Failed to send forgot password email to ${user.email}: `, err);
     }

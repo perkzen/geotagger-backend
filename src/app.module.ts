@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { isTestEnv } from '@app/common/utils/env-check';
 import { validateEnv } from '@app/config/env/env-var.validation';
 import { AwsModule } from '@app/modules/aws/aws.module';
@@ -24,6 +25,7 @@ import { UsersModule } from './modules/users/users.module';
       isGlobal: true,
       validate: validateEnv,
     }),
+    EventEmitterModule.forRoot(),
     PrismaModule,
     AuthModule,
     UsersModule,

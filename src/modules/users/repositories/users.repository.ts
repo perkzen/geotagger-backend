@@ -20,15 +20,6 @@ export class UsersRepository {
     });
   }
 
-  async delete(id: string): Promise<boolean> {
-    const user = await this.user.delete({
-      where: {
-        id,
-      },
-    });
-    return !!user;
-  }
-
   async findOne(id: string, include?: Prisma.UserInclude): Promise<(User & { media: Media | null }) | null> {
     return this.user.findUnique({
       where: {
@@ -55,14 +46,37 @@ export class UsersRepository {
     });
   }
 
-  async updateMedia(userId: string, mediaId: string | null) {
-    return this.user.update({
+  async incrementPoints(userId: string, points: number, tx?: Prisma.TransactionClient) {
+    const db = tx || this.db;
+
+    return db.user.update({
       where: {
         id: userId,
       },
       data: {
-        mediaId,
+        points: {
+          increment: points,
+        },
       },
     });
+  }
+
+  async decrementPoints(userId: string, points: number, tx?: Prisma.TransactionClient) {
+    const db = tx || this.db;
+
+    return db.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        points: {
+          decrement: points,
+        },
+      },
+    });
+  }
+
+  async transaction<T>(callback: (prisma: Prisma.TransactionClient) => Promise<T>): Promise<T> {
+    return this.db.$transaction(callback);
   }
 }

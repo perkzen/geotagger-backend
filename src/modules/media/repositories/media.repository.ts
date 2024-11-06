@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '@app/modules/db/prisma.service';
 import { CreateMediaDto } from '@app/modules/media/dtos/create-media.dto';
 
@@ -10,8 +11,9 @@ export class MediaRepository {
     this.media = this.db.media;
   }
 
-  async create(data: CreateMediaDto) {
-    return this.media.create({
+  async create(data: CreateMediaDto, tx?: Prisma.TransactionClient) {
+    const db = tx || this.db;
+    return db.media.create({
       data,
     });
   }
@@ -34,7 +36,25 @@ export class MediaRepository {
     });
   }
 
-  async transaction<T>(fn: (db: PrismaService) => Promise<T>) {
-    return this.db.$transaction(fn);
+  async update(id: string, data: CreateMediaDto) {
+    return this.media.update({
+      where: {
+        id,
+      },
+      data,
+    });
+  }
+
+  async delete(id: string, tx?: Prisma.TransactionClient) {
+    const db = tx || this.db;
+    await db.media.delete({
+      where: {
+        id,
+      },
+    });
+  }
+
+  async transaction<T>(callback: (prisma: Prisma.TransactionClient) => Promise<T>): Promise<T> {
+    return this.db.$transaction(callback);
   }
 }

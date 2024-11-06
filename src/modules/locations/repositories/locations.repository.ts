@@ -14,8 +14,9 @@ export class LocationsRepository {
     this.location = this.db.location;
   }
 
-  async create(data: CreateLocationDto & { userId: string; mediaId: string }) {
-    return this.location.create({
+  async create(data: CreateLocationDto & { userId: string; mediaId: string }, tx?: Prisma.TransactionClient) {
+    const db = tx || this.db;
+    return db.location.create({
       data,
     });
   }
@@ -52,6 +53,7 @@ export class LocationsRepository {
             createdAt: true,
             user: {
               select: {
+                id: true,
                 firstname: true,
                 lastname: true,
                 imageUrl: true,
@@ -66,6 +68,7 @@ export class LocationsRepository {
           orderBy: {
             distance: 'asc',
           },
+          take: 10,
         },
       },
     });
@@ -86,17 +89,12 @@ export class LocationsRepository {
       skip,
     };
 
+    type LocationWithMedia = Prisma.LocationGetPayload<typeof query>;
+
     return this.db.$transaction([
       this.location.findMany(query),
       this.location.count({ where: query.where }),
-    ]) as Promise<
-      [
-        (Location & {
-          media: Media;
-        })[],
-        number,
-      ]
-    >;
+    ]) as Promise<[LocationWithMedia[], number]>;
   }
 
   async findManyWithPagination({ take, skip }: PaginationQuery) {
@@ -111,27 +109,16 @@ export class LocationsRepository {
       skip,
     };
 
+    type LocationWithMedia = Prisma.LocationGetPayload<typeof query>;
+
     return this.db.$transaction([this.location.findMany(query), this.location.count()]) as Promise<
-      [
-        (Location & {
-          media: Media;
-        })[],
-        number,
-      ]
+      [LocationWithMedia[], number]
     >;
   }
 
-  async delete(id: string): Promise<boolean> {
-    const location = await this.location.delete({
-      where: {
-        id,
-      },
-    });
-    return !!location;
-  }
-
-  async update(id: string, data: UpdateLocationDto & { mediaId?: string }) {
-    return this.location.update({
+  async update(id: string, data: UpdateLocationDto & { mediaId?: string }, tx?: Prisma.TransactionClient) {
+    const db = tx || this.db;
+    return db.location.update({
       where: {
         id,
       },
@@ -140,5 +127,9 @@ export class LocationsRepository {
         media: true,
       },
     });
+  }
+
+  async transaction<T>(callback: (prisma: Prisma.TransactionClient) => Promise<T>): Promise<T> {
+    return this.db.$transaction(callback);
   }
 }
