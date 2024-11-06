@@ -53,5 +53,5 @@ jobs:
           
           ECR_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           
-          docker build --build-arg PLATFORM=linux/amd64 -t $ECR_URI .
+          docker build --build-arg PLATFORM=linux/arm64 -t $ECR_URI .
           docker push $ECR_URI
