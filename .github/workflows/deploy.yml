@@ -12,7 +12,7 @@ on:
     inputs:
       tag:
         description: 'Docker image tag'
-        required: true
+        required: false
         default: 'latest'
         type: string
 
@@ -42,10 +42,10 @@ jobs:
 
       - name: Build, Tag, and Push Image to Amazon ECR
         env:
-            ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
-            ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
-            IMAGE_TAG: ${{ inputs.tag || 'latest' }}
+          ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ inputs.tag || 'latest' }}
         run: |
-            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . 
-            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . 
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           

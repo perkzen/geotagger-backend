@@ -2,16 +2,14 @@ FROM node:20.11-alpine AS builder
 
 WORKDIR /usr/src/app
 
-# Copy only package.json and package-lock.json
-COPY package*.json ./
-
-# Install Prisma dependencies
-RUN npm install
-
+# Copy complete project
 COPY . .
 
+# Install Prisma dependencies
+RUN npm ci
+
 # Generate Prisma client
-RUN npx db generate
+RUN npx prisma generate
 
 # Build the application
 RUN npm run build
@@ -30,7 +28,7 @@ COPY --from=builder /usr/src/app/prisma ./prisma
 
 # Install only production dependencies
 RUN npm install --omit=dev
-RUN npx db generate
+RUN npx prisma generate
 
 # Switch to the non-root user
 USER nodejs
