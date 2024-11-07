@@ -1,73 +1,131 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Geotagger Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Geotagger backend is a RESTful API that handles user authentication, image uploads, location guessing, and point
+management. It also logs user interactions for administrative oversight.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- **User Authentication**:
+    - JWT token-based authentication for secure user sessions.
+    - OAuth integration (Google and Facebook) for user login and registration.
+    - Password reset functionality (with reset token sent via email).
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Location and Image Management**:
+    - Users can upload images and tag the exact location on a map.
+    - Each location is stored with its latitude and longitude in the database.
 
-## Installation
+- **Guessing Game with Points System**:
+    - Users guess the location of uploaded images by placing a pin on the map.
+    - Points are deducted based on the number of guesses (1 point for the first, 2 for the second, 3 for all subsequent
+      guesses).
+    - Distance error is calculated to determine how close the guess is to the real location.
+
+- **Logging User Actions**:
+    - Tracks user actions such as clicks, scrolls, and input changes.
+    - Stores this data in the database to help monitor user behavior and interactions.
+
+- **Error Handling and Logging**:
+    - General error handling is implemented to catch and log issues with the API.
+
+## Technologies Used
+
+- **Backend Framework**: NestJS (with Express)
+- **Database**: PostgreSQL, Prisma ORM
+- **Authentication**: JWT (JSON Web Tokens) and OAuth (Google, Facebook)
+- **File Storage**: Amazon S3 for image storage
+- **Testing**: Jest for unit and end-to-end testing
+- **Logging**: Winston for logging user actions and errors
+- **Queue Management**: Bull for handling background jobs
+- **API Documentation**: Swagger for API documentation
+- **Deployment**: Docker for containerization, AWS for deployment
+- **Webhooks**: AWS SNS for notifications
+- **Email Service**: Resend for sending password reset emails
+
+## Prerequisites
+
+- **Node.js** 20+
+- **Docker** (for containerization and local environment setup)
+- **AWS Account** (for S3 image storage and deployment)
+- **PostgreSQL** (local database for development or AWS RDS for production)
+- **Google API Key** (for Google Maps integration)
+- **Facebook App ID** (for Facebook login integration)
+- **Email Service** (for sending password reset emails)
+
+## Setup Instructions
+
+### 1. Install Dependencies
+
+In the backend directory, run the following command to install all the required dependencies:
 
 ```bash
-$ npm install
+npm install
 ```
 
-## Running the app
+### 2. Set Up Environment Variables
+
+Create a `.env` file in the root directory with the following content:
+
+```env
+NODE_ENV=development
+PORT=8000
+
+FRONTEND_URL=http://localhost:3000
+
+DATABASE_URL=postgresql://admin:admin@localhost:5432/geotagger?schema=public
+JWT_SECRET=
+JWT_ACCESS_TOKEN_EXPIRATION_TIME=1d
+JWT_REFRESH_TOKEN_EXPIRATION_TIME=7d
+
+REDIS_URL=redis://localhost:6379
+
+BULL_BOARD_USERNAME=
+BULL_BOARD_PASSWORD=
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_CALLBACK_URL=
+GOOGLE_MAPS_API_KEY=
+
+FACEBOOK_CLIENT_ID=
+FACEBOOK_CLIENT_SECRET=
+FACEBOOK_CALLBACK_URL=
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_S3_BUCKET_NAME=
+AWS_S3_REGION=
+
+
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+```
+
+### 3. Setup Database
+
+Run the Prisma migrations to set up the database schema:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npx prisma migrate dev
 ```
 
-## Test
+Push database schema to the database:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npx prisma db push
 ```
 
-## Support
+### 4. Run the Development Server
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Start the backend development server:
 
-## Stay in touch
+```bash
+npm run start:dev
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+The server will be running on [http://localhost:8000](http://localhost:8000).
 
-## License
+### 5. Swagger API Documentation
 
-Nest is [MIT licensed](LICENSE).
+Once the server is running, you can access the API documentation
+at [http://localhost:8000/docs](http://localhost:8000/docs). Swagger will display the list of available endpoints, their
+parameters, and responses.
