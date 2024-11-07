@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import { AuthService } from '@app/modules/auth/services/auth.service';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
 import { UsersRepository } from '@app/modules/users/repositories/users.repository';
+import { UsersService } from '@app/modules/users/services/users.service';
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
 import { createUser, getAccessTokens } from '@test/utils/auth';
 
@@ -30,10 +31,11 @@ describe('Activity Log (e2e)', () => {
     await testingApp.compile();
 
     const authService = testingApp.app.get(AuthService);
+    const userService = testingApp.app.get(UsersService);
     const userRepo = testingApp.app.get(UsersRepository);
 
-    await createUser(authService, userDto);
-    const admin = await createUser(authService, adminDto);
+    await createUser(userService, userDto);
+    const admin = await createUser(userService, adminDto);
     await userRepo.update(admin.id, { role: 'admin' });
 
     userAccessToken = (

@@ -52,19 +52,8 @@ export class AuthService {
     return serializeToDto(UserDto, newUser);
   }
 
-  async login(data: UserDto) {
-    const payload: JwtPayload = {
-      sub: {
-        id: data.id,
-        role: data.role,
-        email: data.email,
-      },
-    };
-
-    return {
-      accessToken: await this.jwtService.signAsync(payload, { expiresIn: '15m' }),
-      refreshToken: await this.jwtService.signAsync(payload, { expiresIn: '7d' }),
-    };
+  async login({ id, email, role }: UserDto) {
+    return await this.generateTokens({ id, email, role });
   }
 
   async register(data: CreateLocalUserDto) {
@@ -75,7 +64,8 @@ export class AuthService {
       throw new UserAlreadyExistsException();
     }
 
-    return await this.usersService.createLocalUser({ ...data, password: await hashPassword(data.password) });
+    const user = await this.usersService.createLocalUser({ ...data, password: await hashPassword(data.password) });
+    return await this.generateTokens({ id: user.id, email: user.email, role: user.role });
   }
 
   /**
@@ -140,6 +130,10 @@ export class AuthService {
   }
 
   async refreshAccessToken(user: JwtUser) {
+    return await this.generateTokens(user);
+  }
+
+  private async generateTokens(user: JwtUser) {
     const payload: JwtPayload = {
       sub: user,
     };

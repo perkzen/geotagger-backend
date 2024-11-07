@@ -54,12 +54,12 @@ export class LocalAuthController {
   @ApiBody({ type: CreateLocalUserDto })
   @ApiCreatedResponse({
     description: 'User registered successfully',
-    type: UserDto,
+    type: AuthTokensDto,
   })
   @ApiBadRequestResponse({ description: 'Invalid data' })
   async register(@Body() data: CreateLocalUserDto) {
-    const user = await this.authService.register(data);
-    return serializeToDto(UserDto, user);
+    const tokens = await this.authService.register(data);
+    return serializeToDto(AuthTokensDto, tokens);
   }
 
   @Patch('change-password')

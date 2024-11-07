@@ -4,6 +4,7 @@ import { AWS_S3_CLIENT } from '@app/modules/aws/aws.constants';
 import { AwsS3Service } from '@app/modules/aws/s3/aws-s3.service';
 import { POINTS_PER_LOCATION_UPLOAD } from '@app/modules/users/constants/points.constants';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
+import { UsersService } from '@app/modules/users/services/users.service';
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
 import { S3ClientMock } from '@test/mocks/s3-client.mock';
 import { createUser, getAccessTokens } from '@test/utils/auth';
@@ -27,11 +28,12 @@ describe('User (e2e)', () => {
     });
 
     const authService = testingApp.app.get(AuthService);
+    const userService = testingApp.app.get(UsersService);
     const awsS3Service = testingApp.app.get(AwsS3Service);
 
     jest.spyOn(awsS3Service, 'getObjectUrl').mockImplementation(async () => 'https://example.com/image.jpg');
 
-    await createUser(authService, createUserDto);
+    await createUser(userService, createUserDto);
     accessToken = (
       await getAccessTokens(authService, {
         email: createUserDto.email,
