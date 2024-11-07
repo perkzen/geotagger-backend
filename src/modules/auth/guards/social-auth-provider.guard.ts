@@ -1,21 +1,20 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
-import { AuthStrategy } from '@app/modules/auth/enums/auth-strategy.enum';
 
 @Injectable()
 export class SocialAuthProviderGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    const provider = request.params.provider as AuthStrategy;
+    const provider = request.params.provider;
 
     let guard: CanActivate;
 
     switch (provider) {
-      case AuthStrategy.GOOGLE:
+      case 'google':
         guard = new (AuthGuard('google'))();
         break;
-      case AuthStrategy.FACEBOOK:
+      case 'facebook':
         guard = new (AuthGuard('facebook'))();
         break;
       default:
