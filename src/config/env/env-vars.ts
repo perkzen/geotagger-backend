@@ -34,7 +34,7 @@ export const environmentVariablesSchema = z.object({
   RESEND_API_KEY: z.string(),
   RESEND_FROM_EMAIL: z.string(),
 
-  FRONTEND_URL: z.string().default('http://localhost:3000'),
+  FRONTEND_URL: z.string().url(),
 
   PINO_LOG_LEVEL: z.string().default('debug'),
   PINO_LOG_REQUESTS: z.preprocess(unknownToBoolean, z.boolean()).default(true),

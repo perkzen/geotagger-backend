@@ -7,6 +7,7 @@ import { GoogleMapsService } from '@app/modules/google/maps/google-maps.service'
 import { CreateLocationDto } from '@app/modules/locations/dtos/create-location.dto';
 import { POINTS_LOST_FIRST_GUESS, POINTS_PER_LOCATION_UPLOAD } from '@app/modules/users/constants/points.constants';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
+import { UsersService } from '@app/modules/users/services/users.service';
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
 import { GoogleMapsServiceMock } from '@test/mocks/google-maps-service.mock';
 import { S3ClientMock } from '@test/mocks/s3-client.mock';
@@ -60,14 +61,15 @@ describe('Guess (e2e)', () => {
     });
 
     const authService = testingApp.app.get(AuthService);
+    const userService = testingApp.app.get(UsersService);
     const awsS3Service = testingApp.app.get(AwsS3Service);
 
     jest.spyOn(awsS3Service, 'getObjectUrl').mockImplementation(async () => imageUrl);
 
-    await createUser(authService, user);
+    await createUser(userService, user);
     accessToken = (await getAccessTokens(authService, { email: user.email, password: user.password })).accessToken;
 
-    await createUser(authService, otherUser);
+    await createUser(userService, otherUser);
     otherAccessToken = (
       await getAccessTokens(authService, {
         email: otherUser.email,

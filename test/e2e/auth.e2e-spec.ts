@@ -10,6 +10,7 @@ import { EMAIL_CLIENT } from '@app/modules/email/utils/email.constants';
 import { JobName } from '@app/modules/queue/enums/job-name.enum';
 import { QueueName } from '@app/modules/queue/enums/queue-name.enum';
 import { CreateLocalUserDto } from '@app/modules/users/dtos/create-local-user.dto';
+import { UsersService } from '@app/modules/users/services/users.service';
 import { TestAppBootstrap } from '@test/common/test-app-bootstrap';
 import { EmailClientMock } from '@test/mocks/email-client.mock';
 import { createUser, getAccessTokens } from '@test/utils/auth';
@@ -48,9 +49,11 @@ describe('Auth (e2e)', () => {
     });
 
     const authService = testingApp.app.get(AuthService);
+    const userService = testingApp.app.get(UsersService);
+
     emailQueue = testingApp.app.get(getQueueToken(QueueName.EMAIL));
 
-    const { id } = await createUser(authService, accessTokenUser);
+    const { id } = await createUser(userService, accessTokenUser);
     userId = id;
 
     const tokens = await getAccessTokens(authService, {
