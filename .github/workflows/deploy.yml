@@ -1,9 +1,11 @@
 name: Build and deploy to ECS
 
+
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 
 jobs:
@@ -70,5 +72,3 @@ jobs:
           cluster: ${{ vars.ECS_CLUSTER }}
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           wait-for-service-stability: true
-
-
