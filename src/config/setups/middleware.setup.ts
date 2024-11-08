@@ -30,7 +30,7 @@ export class MiddlewareSetup extends BaseSetup {
   }
 
   private setupCors() {
-    this.app.enableCors({ origin: this.configService.getOrThrow('FRONTEND_URL'), credentials: true });
+    this.app.enableCors({ origin: this.configService.getOrThrow('CORS_ORIGIN'), credentials: true });
   }
 
   private setupCompression() {

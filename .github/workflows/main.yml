@@ -8,6 +8,8 @@ env:
 
   FRONTEND_URL: http://localhost:3000
 
+  CORS_ORIGIN: http://localhost:3000
+
   GOOGLE_CLIENT_ID: secret
   GOOGLE_CLIENT_SECRET: secret
   GOOGLE_CALLBACK_URL: http://localhost:8000/auth/google/callback

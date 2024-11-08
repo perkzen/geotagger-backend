@@ -6,6 +6,7 @@ export const environmentVariablesSchema = z.object({
   NODE_ENV: z.nativeEnum(NodeEnv),
   PORT: z.coerce.number().int().positive(),
   SWAGGER_PATH: z.string().default('docs'),
+  CORS_ORIGIN: z.string().default('*'),
 
   DATABASE_URL: z.string(),
 
